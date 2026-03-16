@@ -1071,7 +1071,7 @@ body.theme-damas .wsp-card__arrow { color: #a78bfa; }
 .form-input--sm,
 .form-select--sm {
   padding: 6px 10px;
-  font-size: 0.85rem;
+  font-size: 1rem; /* ≥16px evita auto-zoom en iOS Safari */
   height: 34px;
 }
 
@@ -1265,7 +1265,7 @@ body.theme-damas .wsp-card__arrow { color: #a78bfa; }
 /* ── WhatsApp floating notify ── */
 .wsp-notify {
   position: fixed;
-  bottom: 80px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
   left: 50%;
   transform: translateX(-50%) translateY(16px);
   width: calc(100% - 32px);
@@ -1318,7 +1318,7 @@ body.theme-damas .wsp-card__arrow { color: #a78bfa; }
 /* ========== TOAST / NOTIFICATIONS ========== */
 .toast {
   position: fixed;
-  bottom: 30px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 30px);
   left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: var(--bg-card);
