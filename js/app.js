@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const logoImg = document.getElementById('headerLogoImg');
     if (genero === 'damas') {
-      logoImg.src = 'Logos/Logo damas.jpeg';
+      logoImg.src = 'Logos/Logo Damas.jpeg';
       logoImg.alt = 'Servicios para Damas';
       document.getElementById('headerGeneroLabel').textContent = 'Servicios para Damas';
     } else {
