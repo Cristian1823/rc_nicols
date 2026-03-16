@@ -1,0 +1,67 @@
+
+servicios y productos, damas 
+
+Manicure tradicional.
+15k (30 minutos) 
+Pedicure tradicional. 
+20k (40 minutos) 
+Semipermanente mano. 
+50k (60 minutos) 
+Semipermanente pies. 
+45k (60 minutos) 
+Baño poligel.
+70k ( 2 horas) 
+Uñas poligel.
+100k ( 3 horas) 
+Acrílicas.
+100k (3 horas) 
+Press-on
+85k (2 horas) 
+Mantenimiento
+Desde 60k (2 horas) 
+Corte dama
+14k (30 minutos) 
+Depilación ceja. 
+9k (10 minutos) 
+Depilación bigote. 
+6k (10 minutos) 
+Depilación axila.
+12k (20 minutos) 
+
+Keratina. 
+Celulas madre.
+Alisado.
+Cepillados.
+
+
+para la parte de caballeros 
+
+Corte caballero.
+18k (45 minutos) 
+Corte niños.
+16k (45 minutos) 
+Barba.
+8k (20 minutos) 
+Corte y barba.
+25k ( 60 minutos) 
+Cejas.
+3k (10 minutos) 
+Lavado.
+2k (10 minutos)
+
+
+''''''''''''''''''''''''''''
+
+tono para el inicio de las damas
+
+.hero-mujeres {
+  background: linear-gradient(to bottom,
+    #4a0e4f 0%,      /* Violeta oscuro arriba */
+    #9333ea 20%,     /* Violeta medio */
+    #c4a0e8 40%,     /* Malva */
+    #f5e8f0 60%,     /* Rosa pálido */
+    #fceef5 80%,     /* Blush suave */
+    #fdf8fc 100%     /* Blanco rosado */
+  );
+  filter: brightness(1.05) saturate(0.85); /* Suaviza global */
+}

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0812">
+  <title>BarberShop Elite - Agenda tu turno</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ===== GENDER LANDING ===== -->
+  <div id="genderLanding" class="gender-landing">
+    <div class="gender-landing__header">
+      <div class="gender-landing__welcome">Bienvenidos &mdash; Servicios para Todos</div>
+      <div class="gender-landing__tagline">¿Para quién es el servicio?</div>
+    </div>
+    <div class="gender-landing__cards">
+
+      <button class="gender-card gender-card--caballeros" data-genero="caballeros" aria-label="Servicios para Caballeros">
+        <div class="gender-card__deco" aria-hidden="true">
+          <span class="gc-deco gc-deco--pole">
+            <svg viewBox="0 0 18 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <rect x="2" y="4" width="14" height="32" rx="7"/>
+              <path d="M2 11 Q9 13 16 11"/><path d="M2 19 Q9 21 16 19"/><path d="M2 27 Q9 29 16 27"/>
+              <rect x="0" y="1" width="18" height="4" rx="2"/><rect x="0" y="35" width="18" height="4" rx="2"/>
+            </svg>
+          </span>
+          <span class="gc-deco gc-deco--scissors-bg">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="3.5"/><circle cx="7" cy="25" r="3.5"/>
+              <line x1="9.8" y1="5.6" x2="27" y2="28"/><line x1="9.8" y1="26.4" x2="27" y2="4"/>
+            </svg>
+          </span>
+          <span class="gc-deco gc-deco--razor-bg">
+            <svg viewBox="0 0 34 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="8" width="22" height="14" rx="3"/>
+              <line x1="9" y1="8" x2="9" y2="22"/>
+              <path d="M13 13 L25 13"/><path d="M13 19 L25 19"/>
+              <path d="M3 15 L9 15"/>
+            </svg>
+          </span>
+          <span class="gc-deco gc-deco--comb-bg-c">
+            <svg viewBox="0 0 40 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <rect x="2" y="2" width="36" height="9" rx="3"/>
+              <line x1="8" y1="11" x2="8" y2="20"/><line x1="14" y1="11" x2="14" y2="20"/>
+              <line x1="20" y1="11" x2="20" y2="20"/><line x1="26" y1="11" x2="26" y2="20"/>
+              <line x1="32" y1="11" x2="32" y2="20"/>
+            </svg>
+          </span>
+        </div>
+        <div class="gender-card__logo-area">
+          <img src="Logos/Logo Caballeros.jpeg" alt="RC Barber &amp; Spa" class="gender-card__img" loading="eager" decoding="async">
+        </div>
+        <div class="gender-card__content">
+          <div class="gender-card__text">
+            <div class="gender-card__name">Caballeros</div>
+            <div class="gender-card__service">Corte &middot; Barba &middot; Estilo</div>
+          </div>
+          <div class="gender-card__cta">
+            <span>Reservar</span>
+            <span class="gender-card__arrow">&#8594;</span>
+          </div>
+        </div>
+      </button>
+
+      <button class="gender-card gender-card--damas" data-genero="damas" aria-label="Servicios para Damas">
+        <div class="gender-card__deco" aria-hidden="true">
+          <span class="gc-deco gc-deco--flower">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="16" cy="16" r="3.5"/>
+              <path d="M16 4 Q20 10 16 12.5 Q12 10 16 4Z"/>
+              <path d="M16 4 Q20 10 16 12.5 Q12 10 16 4Z" transform="rotate(72 16 16)"/>
+              <path d="M16 4 Q20 10 16 12.5 Q12 10 16 4Z" transform="rotate(144 16 16)"/>
+              <path d="M16 4 Q20 10 16 12.5 Q12 10 16 4Z" transform="rotate(216 16 16)"/>
+              <path d="M16 4 Q20 10 16 12.5 Q12 10 16 4Z" transform="rotate(288 16 16)"/>
+            </svg>
+          </span>
+          <span class="gc-deco gc-deco--comb-bg">
+            <svg viewBox="0 0 40 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <rect x="2" y="2" width="36" height="9" rx="3"/>
+              <line x1="8" y1="11" x2="8" y2="20"/><line x1="14" y1="11" x2="14" y2="20"/>
+              <line x1="20" y1="11" x2="20" y2="20"/><line x1="26" y1="11" x2="26" y2="20"/>
+              <line x1="32" y1="11" x2="32" y2="20"/>
+            </svg>
+          </span>
+          <span class="gc-deco gc-deco--mirror-bg">
+            <svg viewBox="0 0 26 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <ellipse cx="13" cy="12" rx="9" ry="11"/>
+              <line x1="13" y1="23" x2="13" y2="30"/>
+              <line x1="7" y1="30" x2="19" y2="30"/>
+            </svg>
+          </span>
+          <span class="gc-deco gc-deco--star-bg">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M16 2 L18 12 L28 10 L20 17 L23 27 L16 21 L9 27 L12 17 L4 10 L14 12 Z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="gender-card__logo-area">
+          <img src="Logos/Logo damas.jpeg" alt="RC Nicoll's Barberia &amp; Spa" class="gender-card__img" loading="eager" decoding="async">
+        </div>
+        <div class="gender-card__content">
+          <div class="gender-card__text">
+            <div class="gender-card__name">Damas</div>
+            <div class="gender-card__service">Corte &middot; Coloraci&oacute;n &middot; Peinado</div>
+          </div>
+          <div class="gender-card__cta">
+            <span>Reservar</span>
+            <span class="gender-card__arrow">&#8594;</span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Badge central unificador (solo desktop) -->
+      <div class="gender-landing__center-badge" aria-hidden="true">
+        <div class="gender-landing__center-icon">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="7" cy="7" r="3.5"/><circle cx="7" cy="25" r="3.5"/>
+            <line x1="9.8" y1="5.6" x2="27" y2="28"/><line x1="9.8" y1="26.4" x2="27" y2="4"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN BOOKING APP ===== -->
+  <div id="mainApp" class="container main-app">
+
+
+    <!-- Header -->
+    <header class="header">
+      <button class="header__change-btn" id="backToGender" aria-label="Cambiar selección">
+        &#8592; Cambiar
+      </button>
+      <div class="header__logo-wrap">
+        <img src="" alt="Logo" class="header__logo-img" id="headerLogoImg">
+      </div>
+      <div class="header__subtitle" id="headerGeneroLabel">Agenda tu turno</div>
+      <div class="header__divider"></div>
+    </header>
+
+    <!-- Steps Indicator -->
+    <div class="steps" id="stepsIndicator">
+      <div class="steps__dot steps__dot--active" data-step="1"></div>
+      <div class="steps__dot" data-step="2"></div>
+      <div class="steps__dot" data-step="3"></div>
+      <div class="steps__dot" data-step="4"></div>
+      <div class="steps__dot" data-step="5"></div>
+      <div class="steps__dot" data-step="6"></div>
+    </div>
+
+    <!-- Step 1: Servicio -->
+    <section class="step step--active" id="step1">
+      <h2 class="step__title">Bienvenido</h2>
+      <p class="step__description">Reserva tu turno en pocos pasos. Elige el servicio que necesitas.</p>
+      <div class="step-ilus" aria-hidden="true">
+
+        <div class="step-ilus__caballeros">
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="3.5"/><circle cx="7" cy="25" r="3.5"/>
+              <line x1="9.8" y1="5.6" x2="27" y2="28"/><line x1="9.8" y1="26.4" x2="27" y2="4"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon step-ilus__icon--tall">
+            <svg viewBox="0 0 18 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <rect x="2" y="4" width="14" height="32" rx="7"/>
+              <path d="M2 11 Q9 13 16 11"/><path d="M2 19 Q9 21 16 19"/><path d="M2 27 Q9 29 16 27"/>
+              <rect x="0" y="1" width="18" height="4" rx="2"/><rect x="0" y="35" width="18" height="4" rx="2"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 40 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <rect x="2" y="2" width="36" height="9" rx="3"/>
+              <line x1="8" y1="11" x2="8" y2="20"/><line x1="14" y1="11" x2="14" y2="20"/>
+              <line x1="20" y1="11" x2="20" y2="20"/><line x1="26" y1="11" x2="26" y2="20"/>
+              <line x1="32" y1="11" x2="32" y2="20"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 42 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 9 Q8 2 14 9 Q17 12 21 12 Q25 12 28 9 Q34 2 40 9 Q35 16 29 13 Q25 11 21 15 Q17 11 13 13 Q7 16 2 9Z"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 34 30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="8" width="22" height="14" rx="3"/>
+              <line x1="9" y1="8" x2="9" y2="22"/>
+              <path d="M13 13 L25 13"/><path d="M13 19 L25 19"/>
+              <path d="M3 15 L9 15"/>
+            </svg>
+          </span>
+        </div>
+
+        <div class="step-ilus__damas">
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 38 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 10 L4 22 Q4 26 8 26 L13 26 L13 22 L19 22 L19 10 L13 10 L13 7 L8 7 Q4 7 4 10Z"/>
+              <circle cx="8" cy="16" r="3"/>
+              <line x1="19" y1="13" x2="27" y2="10"/><line x1="19" y1="16" x2="31" y2="16"/>
+              <line x1="19" y1="19" x2="27" y2="22"/>
+              <line x1="13" y1="26" x2="13" y2="32"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon step-ilus__icon--tall">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="7" r="3.5"/><circle cx="7" cy="25" r="3.5"/>
+              <line x1="9.8" y1="5.6" x2="27" y2="28"/><line x1="9.8" y1="26.4" x2="27" y2="4"/>
+              <circle cx="15.5" cy="15.5" r="2" fill="currentColor" opacity="0.5" stroke="none"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 28 38" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="10" y="2" width="8" height="18" rx="4"/>
+              <path d="M8 20 Q14 24 20 20 Q20 30 14 32 Q8 30 8 20Z"/>
+              <line x1="14" y1="32" x2="14" y2="37"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M16 2 L18 12 L28 10 L20 17 L23 27 L16 21 L9 27 L12 17 L4 10 L14 12 Z" opacity="0.85"/>
+              <circle cx="25" cy="6" r="1.8" fill="currentColor" opacity="0.5" stroke="none"/>
+              <circle cx="7" cy="25" r="1.4" fill="currentColor" opacity="0.4" stroke="none"/>
+            </svg>
+          </span>
+          <span class="step-ilus__icon">
+            <svg viewBox="0 0 26 34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <ellipse cx="13" cy="12" rx="9" ry="11"/>
+              <line x1="13" y1="23" x2="13" y2="30"/>
+              <line x1="7" y1="30" x2="19" y2="30"/>
+              <path d="M7 8 Q9 6 13 6" opacity="0.35" stroke-width="1.2"/>
+            </svg>
+          </span>
+        </div>
+
+      </div>
+      <div class="options" id="servicioOptions">
+        <!-- Generado dinámicamente por app.js según el género seleccionado -->
+      </div>
+    </section>
+
+    <!-- Step 2: Barbero -->
+    <section class="step" id="step2">
+      <h2 class="step__title">Elige tu especialista</h2>
+      <p class="step__description">Selecciona con quién deseas atenderte.</p>
+      <div class="options" id="barberoOptions">
+        <!-- Generado dinámicamente por app.js según el género seleccionado -->
+      </div>
+      <div class="btn-group">
+        <button class="btn btn--secondary" id="backToStep1">Atr&aacute;s</button>
+      </div>
+    </section>
+
+    <!-- Step 3: Fecha -->
+    <section class="step" id="step3">
+      <h2 class="step__title">Selecciona la fecha</h2>
+      <p class="step__description">Elige el d&iacute;a para tu cita.</p>
+      <div class="calendar" id="calendar">
+        <div class="calendar__header">
+          <button class="calendar__nav" id="calPrev">&#8249;</button>
+          <span class="calendar__month" id="calMonth"></span>
+          <button class="calendar__nav" id="calNext">&#8250;</button>
+        </div>
+        <div class="calendar__weekdays">
+          <span class="calendar__weekday">Do</span>
+          <span class="calendar__weekday">Lu</span>
+          <span class="calendar__weekday">Ma</span>
+          <span class="calendar__weekday">Mi</span>
+          <span class="calendar__weekday">Ju</span>
+          <span class="calendar__weekday">Vi</span>
+          <span class="calendar__weekday">S&aacute;</span>
+        </div>
+        <div class="calendar__days" id="calDays"></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn--secondary" id="backToStep2">Atr&aacute;s</button>
+      </div>
+    </section>
+
+    <!-- Step 4: Hora -->
+    <section class="step" id="step4">
+      <h2 class="step__title">Selecciona la hora</h2>
+      <p class="step__description" id="selectedDateText"></p>
+      <div id="slotsContainer">
+        <div class="loading" id="slotsLoading">
+          <div class="loading__spinner"></div>
+          <div class="loading__text">Consultando disponibilidad...</div>
+        </div>
+        <div class="slots" id="slotsGrid"></div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn--secondary" id="backToStep3">Atr&aacute;s</button>
+      </div>
+    </section>
+
+    <!-- Step 5: Datos del cliente -->
+    <section class="step" id="step5">
+      <h2 class="step__title">Tus datos</h2>
+      <p class="step__description">Ingresa tu informaci&oacute;n para confirmar la reserva.</p>
+      <div class="summary" id="bookingSummary">
+        <div class="summary__row">
+          <span class="summary__label">Servicio</span>
+          <span class="summary__value" id="sumServicio"></span>
+        </div>
+        <div class="summary__row">
+          <span class="summary__label">Especialista</span>
+          <span class="summary__value" id="sumBarbero"></span>
+        </div>
+        <div class="summary__row">
+          <span class="summary__label">Fecha</span>
+          <span class="summary__value" id="sumFecha"></span>
+        </div>
+        <div class="summary__row">
+          <span class="summary__label">Hora</span>
+          <span class="summary__value" id="sumHora"></span>
+        </div>
+      </div>
+      <form id="clientForm">
+        <div class="form-group">
+          <label for="clientName">Nombre completo</label>
+          <input type="text" class="form-input" id="clientName" placeholder="Tu nombre" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="clientPhone">Tel&eacute;fono</label>
+          <input type="tel" class="form-input" id="clientPhone" placeholder="Tu n&uacute;mero de tel&eacute;fono" required autocomplete="tel">
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn--secondary" id="backToStep4">Atr&aacute;s</button>
+          <button type="submit" class="btn btn--primary" id="btnConfirm">Confirmar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Step 6: Confirmación -->
+    <section class="step" id="step6">
+      <div class="confirmation">
+        <div class="confirmation__icon">&#10003;</div>
+        <h2 class="confirmation__title">¡Reserva confirmada!</h2>
+        <p class="confirmation__message">Tu turno ha sido agendado exitosamente.</p>
+        <div class="confirmation__detail" id="confirmationDetail"></div>
+        <button class="btn btn--primary" id="btnNewBooking">Agendar otro turno</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

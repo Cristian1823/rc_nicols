@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RC Barber & Spa — Admin</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container container--admin">
+
+    <header class="header">
+      <div class="header__logo">RC Barber &amp; Spa / RC Nicoll's</div>
+      <div class="header__subtitle">Panel de Administración</div>
+      <div class="header__divider"></div>
+    </header>
+
+    <!-- PIN Login -->
+    <section id="pinSection">
+      <div class="pin-container">
+        <h2 class="pin-container__title">Acceso Admin</h2>
+        <p class="pin-container__subtitle">Ingresa el PIN de 4 dígitos</p>
+        <div class="pin-input" id="pinInput">
+          <input type="password" class="pin-input__digit" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="0">
+          <input type="password" class="pin-input__digit" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="1">
+          <input type="password" class="pin-input__digit" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="2">
+          <input type="password" class="pin-input__digit" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3">
+        </div>
+        <p class="pin-error" id="pinError">PIN incorrecto. Intenta de nuevo.</p>
+        <button class="btn btn--primary btn--small" id="btnLogin" style="width:200px">Ingresar</button>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="dashboard" id="dashboard">
+
+      <!-- ── 1. MÉTRICAS ── -->
+      <div class="dash-section">
+        <div class="dash-section__head">
+          <h3 class="dash-section__title">Resumen de ventas</h3>
+          <div class="dash-filters">
+            <div class="dash-filter-group">
+              <label>Desde</label>
+              <input type="date" class="form-input form-input--sm" id="metricsFechaInicio">
+            </div>
+            <div class="dash-filter-group">
+              <label>Hasta</label>
+              <input type="date" class="form-input form-input--sm" id="metricsFechaFin">
+            </div>
+            <div class="dash-filter-group">
+              <label>Área</label>
+              <select class="form-select form-select--sm" id="metricsGenero">
+                <option value="">Todos</option>
+                <option value="caballeros">Caballeros</option>
+                <option value="damas">Damas</option>
+              </select>
+            </div>
+            <button class="btn btn--primary btn--small" id="btnLoadMetrics">Aplicar</button>
+          </div>
+        </div>
+
+        <div id="metricsLoading" class="loading" style="display:none">
+          <div class="loading__spinner"></div>
+          <div class="loading__text">Calculando métricas...</div>
+        </div>
+
+        <div id="metricsContent">
+          <div class="metrics-grid" id="metricsGrid"></div>
+          <div class="chart-wrap">
+            <div class="chart-label" id="chartLabel">Citas por día — semana actual</div>
+            <div class="week-chart" id="weekChart"></div>
+          </div>
+          <div class="services-rank" id="servicesRank"></div>
+        </div>
+      </div>
+
+      <!-- ── 2. CITAS DEL DÍA ── -->
+      <div class="dash-section">
+        <h3 class="dash-section__title">Citas del día</h3>
+        <div class="dashboard__date-picker">
+          <input type="date" class="form-input form-input--sm" id="adminDatePicker">
+          <button class="btn btn--primary btn--small" id="btnLoadCitas">Ver</button>
+        </div>
+        <div class="barbero-tabs" id="barberoTabs"></div>
+        <div id="citasContainer">
+          <div class="loading" id="citasLoading" style="display:none">
+            <div class="loading__spinner"></div>
+            <div class="loading__text">Cargando citas...</div>
+          </div>
+          <div id="citasList"></div>
+        </div>
+      </div>
+
+      <!-- ── 3. BLOQUEAR DÍA ── -->
+      <div class="dash-section">
+        <h3 class="dash-section__title">Bloquear día</h3>
+        <div class="block-form">
+          <div class="form-group">
+            <label for="blockDate">Fecha</label>
+            <input type="date" class="form-input" id="blockDate">
+          </div>
+          <div class="form-group">
+            <label for="blockBarbero">Especialista</label>
+            <select class="form-select" id="blockBarbero">
+              <option value="Todos">Todos</option>
+              <option value="Sebastián">Sebastián</option>
+              <option value="César">César</option>
+              <option value="Rocío">Rocío</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="blockMotivo">Motivo (opcional)</label>
+            <input type="text" class="form-input" id="blockMotivo" placeholder="Ej: Día festivo">
+          </div>
+          <button class="btn btn--primary" id="btnBloquear">Bloquear día</button>
+        </div>
+      </div>
+
+      <!-- ── 4. DÍAS BLOQUEADOS ── -->
+      <div class="dash-section">
+        <h3 class="dash-section__title">Días bloqueados</h3>
+        <div id="diasBloqueadosList">
+          <div class="loading" id="diasLoading" style="display:none">
+            <div class="loading__spinner"></div>
+            <div class="loading__text">Cargando...</div>
+          </div>
+          <div id="diasList"></div>
+        </div>
+      </div>
+
+      <!-- ── 5. CITAS EXTRAORDINARIAS ── -->
+      <div class="dash-section">
+        <div class="dash-section__head">
+          <div>
+            <h3 class="dash-section__title">Cita extraordinaria</h3>
+            <p class="dash-section__desc">Agenda fuera del horario normal (clientes especiales, extensión de jornada). Queda registrada en métricas.</p>
+          </div>
+        </div>
+        <form id="extraForm">
+          <div class="extra-form__grid">
+            <div class="form-group">
+              <label for="extraEsp">Especialista</label>
+              <select class="form-select" id="extraEsp"></select>
+            </div>
+            <div class="form-group">
+              <label for="extraFecha">Fecha</label>
+              <input type="date" class="form-input" id="extraFecha" required>
+            </div>
+            <div class="form-group">
+              <label for="extraHora">Hora inicio</label>
+              <input type="time" class="form-input" id="extraHora" required>
+            </div>
+            <div class="form-group">
+              <label for="extraHoraFin">Hora fin (auto)</label>
+              <input type="text" class="form-input" id="extraHoraFin" readonly placeholder="—">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="extraServicio">Servicio</label>
+            <select class="form-select" id="extraServicio"></select>
+          </div>
+          <div class="extra-form__grid">
+            <div class="form-group">
+              <label for="extraCliente">Nombre del cliente</label>
+              <input type="text" class="form-input" id="extraCliente" placeholder="Nombre completo" required>
+            </div>
+            <div class="form-group">
+              <label for="extraTelefono">Teléfono / WhatsApp</label>
+              <input type="tel" class="form-input" id="extraTelefono" placeholder="Número de contacto" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary" id="btnExtraReservar">Agendar cita</button>
+        </form>
+      </div>
+
+      <button class="btn btn--secondary" id="btnLogout" style="margin-top:10px">Cerrar sesión</button>
+    </section>
+  </div>
+
+  <!-- Notificación WhatsApp flotante -->
+  <div class="wsp-notify" id="wspNotify">
+    <div class="wsp-notify__inner">
+      <div class="wsp-notify__text" id="wspNotifyText"></div>
+      <div class="wsp-notify__actions">
+        <a class="btn btn--wsp btn--small" id="wspNotifyLink" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+        <button class="btn btn--secondary btn--small" onclick="closeWspNotify()">Omitir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
