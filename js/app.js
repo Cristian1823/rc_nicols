@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const servicio   = getServicioActual();
     const duracion   = servicio.duracion;
-    const allSlots   = generateSlots();
+    const allSlots   = generateSlots(duracion);
     const now        = new Date();
     const isToday    = state.fecha === formatDate(now);
     const nowMin     = now.getHours() * 60 + now.getMinutes();
@@ -451,14 +451,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Slots fijos de atención (cada 45 min, 9:00 → 21:00)
+  // Slots fijos de atención para caballeros (cada 45 min, 9:00 → 21:00)
   const SLOTS_FIJOS = [
     '09:00','09:45','10:30','11:15','12:00','12:45',
     '13:30','14:15','15:00','15:45','16:30','17:15',
     '18:00','18:45','19:30','20:15','21:00'
   ];
 
-  function generateSlots() {
+  // Caballeros: slots fijos. Damas: cálculo dinámico según duración del servicio.
+  function generateSlots(duracion) {
+    if (state.genero === 'damas') {
+      const slots = [];
+      const inicioMin = CONFIG.HORARIO.inicio * 60;
+      const finMin    = CONFIG.HORARIO.fin * 60;
+      const base      = CONFIG.HORARIO.slotBase;
+      for (let m = inicioMin; m + duracion <= finMin; m += base) {
+        slots.push(minToSlot(m));
+      }
+      return slots;
+    }
     return SLOTS_FIJOS;
   }
 
