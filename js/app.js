@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (d.fecha !== dateStr) return false;
       if (d.barbero !== state.barbero && d.barbero !== 'Todos') return false;
       if (!d.horas) return false; // día completo ya manejado en isDiaBlocked
-      return d.horas.split(',').some(h => {
+      return String(d.horas).split(',').some(h => {
         const btMin = slotToMin(h.trim());
         return slotMin < btMin + 45 && slotMin + duracion > btMin;
       });

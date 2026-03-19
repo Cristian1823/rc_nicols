@@ -174,6 +174,14 @@ function getDiasBloqueados() {
     headers.forEach((h, j) => {
       if (h === 'fecha') {
         dia[h] = formatSheetDate(row[j]);
+      } else if (h === 'horas') {
+        // Sheets puede auto-convertir "09:00" a Date si hay una sola hora
+        var val = row[j];
+        if (val instanceof Date) {
+          dia[h] = formatSheetTime(val);
+        } else {
+          dia[h] = String(val || '');
+        }
       } else {
         dia[h] = row[j];
       }
@@ -223,15 +231,16 @@ function reservar(data) {
       if (dFecha !== data.fecha) continue;
       var dBarb   = dRow[dBarberoIdx];
       if (dBarb !== data.barbero && dBarb !== 'Todos') continue;
-      var dHoras  = dHorasIdx >= 0 ? (dRow[dHorasIdx] || '') : '';
+      var dHorasRaw = dHorasIdx >= 0 ? dRow[dHorasIdx] : '';
+      var dHoras = dHorasRaw instanceof Date ? formatSheetTime(dHorasRaw) : String(dHorasRaw || '');
       if (!dHoras) {
         return { error: 'Este día está bloqueado' };
       }
       // Bloqueo parcial: verificar solapamiento con [nuevoInicio, nuevoFin)
-      var blockedList = String(dHoras).split(',');
+      var blockedList = dHoras.split(',');
       for (var k = 0; k < blockedList.length; k++) {
         var btMin = timeToMin(blockedList[k].trim());
-        if (nuevoInicio < btMin + 30 && nuevoFin > btMin) {
+        if (nuevoInicio < btMin + 45 && nuevoFin > btMin) {
           return { error: 'Este horario está bloqueado' };
         }
       }
