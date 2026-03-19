@@ -12,9 +12,11 @@ js/admin.js             → Lógica admin (PIN, citas, bloquear días, métricas
 google-apps-script/Code.gs → Backend Google Apps Script
 Logos/
   Logo Caballeros.jpeg  → Logo RC Barber & Spa (letras crema sobre negro)
-  Logo Damas.jpeg       → Logo RC Nicoll's (círculo morado sobre negro)  ← D mayúscula (GitHub Pages es case-sensitive)
+  Logo Damas.jpeg       → Logo RC Nicoll's (círculo morado sobre negro)  ← D mayúscula (Cloudflare/Linux es case-sensitive)
   fondo.png             → Ilustración barbería (RGBA con transparencia, disponible para uso futuro)
-qr_rc_barber.png        → QR code para https://cristian1823.github.io/rc_nicols/ (fondo oscuro, módulos dorados, logo centrado 35%)
+Sebastian.jpeg          → Foto de Sebastián (barbero) — usada en card de especialista
+Cesar.jpeg              → Foto de César (barbero) — usada en card de especialista
+qr_rc_barber.png        → QR code para https://rc-nicols.pages.dev (fondo oscuro, módulos dorados, logo centrado 35%)
 ```
 
 ## Stack
@@ -23,6 +25,7 @@ qr_rc_barber.png        → QR code para https://cristian1823.github.io/rc_nicol
 - Base de datos: Google Sheets (hojas: Citas, DiasBloquados, Config, Servicios, Barberos)
 - Comunicación: JSONP (evita problemas de CORS con Google Apps Script)
 - Deploy: Cloudflare Pages → https://rc-nicols.pages.dev
+- Admin: https://rc-nicols.pages.dev/admin.html (acceso directo, sin link desde index)
 
 ## Configuración
 - Especialistas: Sebastián (caballeros), César (caballeros), Rocío (damas)
@@ -36,10 +39,21 @@ qr_rc_barber.png        → QR code para https://cristian1823.github.io/rc_nicol
    - Sin texto de marca en el header — solo la tagline "¿Para quién es el servicio?"
    - Caballeros → aplica tema oscuro/dorado (default)
    - Damas → aplica tema claro blanco/lila (body.theme-damas)
-2. **6 pasos de reserva** dentro de `#mainApp` (oculto hasta seleccionar género):
-   Servicio → Especialista → Fecha → Hora → Datos → Confirmación
+2. **Pasos de reserva** dentro de `#mainApp` (oculto hasta seleccionar género):
+   - Flujo normal: Servicio → Especialista → Fecha → Hora → Datos → Confirmación
+   - Flujo sinHora: Servicio → Especialista → Fecha → Datos → Confirmación (sin paso de hora)
 3. Botón "← Cambiar" en el header vuelve al landing de género
 4. "Agendar otro turno" también regresa al landing de género
+
+## Servicios sin hora (sinHora: true)
+Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A convenir" y sin duración fija.
+- El cliente elige día pero NO hora (la coordina con Rocío por WhatsApp)
+- Se guarda en Sheets con hora = "A coordinar"
+- Confirmación muestra botón WSP destacado: "¡Coordina tu hora con Rocío!"
+- En Code.gs: `reservar` omite validación de conflicto cuando hora = "A coordinar"
+- En Sheets (hoja Servicios): columna `sinHora = TRUE` para estos 4 servicios; duracion vacía
+- `getServicios` en Code.gs devuelve `sinHora: true` si está marcado en Sheets
+- En app.js: `BARBERO_FOTOS` mapea nombre → archivo; fallback al SVG via addEventListener('error')
 
 ## Temas visuales
 ### Tema Caballeros (default)
@@ -72,15 +86,17 @@ qr_rc_barber.png        → QR code para https://cristian1823.github.io/rc_nicol
   - Caballeros: tijeras, poste de barbería, peine, bigote, navaja
   - Damas: secador, tijeras, pincel, estrella, espejo
   - Se muestra/oculta con body.theme-damas .step-ilus__caballeros { display:none }
-- Option cards con iconos SVG inline (reemplazan emojis):
-  - corte_barba: tijeras + silueta de barba
-  - solo_corte: tijeras con punto central
-  - barberos (Sebastián/César/Rocío): silueta de persona + mini-tijeras badge
-  - Contenedor icono: fondo con borde dorado/violeta, se ilumina al seleccionar
-  - Card seleccionada tiene línea de acento vertical izquierda (::before)
-  - Iconos animados con Anime.js: float suave (translateY 0→-5px) con delay escalonado por índice
+- Option cards de servicios con iconos SVG inline (usan currentColor → heredan el tema)
+- Cards de especialistas (step 2):
+  - Foto circular 110px: Sebastián (Sebastian.jpeg, object-position: center top) y César (Cesar.jpeg, object-position: 50% 18% — es más bajito en foto)
+  - Rocío: sin foto → muestra SVG_PERSON como fallback
+  - Fallback vía addEventListener('error') en JS (nunca onerror inline — rompe el HTML)
+  - Descripción dinámica: "Barbero Profesional" (caballeros) / "Estilista Profesional" (damas)
+  - Cards con padding 20px, min-height 120px, foto centrada
+  - Card seleccionada: borde dorado/violeta + glow en la foto
 - Títulos de pasos: gradiente dorado sutil en caballeros (blanco → dorado)
 - Confirmation icon: encerrado en círculo con borde dorado y glow
+- WSP card destacada (.wsp-card--destacado): borde 2px violeta + glow para servicios sinHora
 
 ## Decisiones técnicas
 - JSONP en vez de fetch: Google Apps Script bloquea CORS desde localhost/Live Server.
@@ -91,26 +107,28 @@ qr_rc_barber.png        → QR code para https://cristian1823.github.io/rc_nicol
 - Los logos tienen fondo negro en el JPEG → usar object-fit: contain (no cover).
 - SVG icons inline en option cards: usan currentColor → heredan el color del tema automáticamente.
 - fondo.png fue procesado con Pillow para tener canal alpha real (RGBA, 76.8% transparente). No necesita mix-blend-mode.
-- GitHub Pages es case-sensitive (Linux): todos los paths a assets deben coincidir exactamente (ej: "Logo Damas.jpeg" con D mayúscula).
+- Cloudflare Pages corre en Linux: todos los paths a assets deben coincidir exactamente en mayúsculas/minúsculas.
 - Header logo src inicial = "Logos/Logo Caballeros.jpeg" (no vacío) para evitar bug de iOS Safari que ignora cambios de src en img sin src.
 - iOS Safari: font-size ≥16px en inputs para evitar zoom automático; env(safe-area-inset-bottom) para notch en toast/wsp-notify.
 - Admin métricas: filtro de género en frontend (CONFIG.BARBEROS[genero]); no requiere cambios en backend.
 - Citas extraordinarias: reutilizan API.reservar sin restricción de horario; conflictos validados server-side.
 - Confirmación de reserva incluye tarjeta WhatsApp dinámica con link wa.me/ al especialista elegido.
+- sinHora: flag en CONFIG.SERVICIOS y en hoja Servicios de Sheets; controla si se salta el paso de hora.
 
 ## Para conectar el backend
 1. Crear Google Sheet → copiar ID en Code.gs (SPREADSHEET_ID)
 2. Ejecutar setup() en Apps Script para crear hojas (Citas, DiasBloquados, Config, Servicios, Barberos)
-3. Desplegar como Web App (acceso: cualquier persona)
-4. Pegar URL en js/config.js (API_URL)
+3. Agregar columna `sinHora` en hoja Servicios y las 4 filas de servicios sin hora
+4. Desplegar como Web App (acceso: cualquier persona)
+5. Pegar URL en js/config.js (API_URL)
 
 ## Para actualizar el backend
 1. Pegar código nuevo en Apps Script
-2. Implementar > Administrar implementaciones > lápiz > Versión: "Implementación nueva" > Implementar
+2. Implementar > Administrar implementaciones > lápiz > Versión: "Nueva versión" > Implementar
 3. La URL se mantiene igual
 
 ## Admin panel (admin.html)
-- Acceso solo por URL directa (sin link desde index.html)
+- Acceso solo por URL directa: https://rc-nicols.pages.dev/admin.html
 - PIN almacenado en hoja Config de Google Sheets (por defecto 1234)
 - Secciones: Métricas/ventas, Citas del día (tabs por especialista), Bloquear día, Días bloqueados, Citas extraordinarias
 - Al cancelar cita: opción opcional de enviar WhatsApp al cliente (#wspNotify flotante)
