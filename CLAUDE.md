@@ -29,7 +29,7 @@ qr_rc_barber.png        → QR code para https://rc-nicols.pages.dev (fondo oscu
 
 ## Configuración
 - Especialistas: Sebastián (caballeros), César (caballeros), Rocío (damas)
-- Horario: Lunes a Sábado, 9:00 - 21:00 (domingos cerrado), slotBase 10 min
+- Horario: todos los días (incluyendo domingo), 9:00 - 21:00, slotBase 10 min; días cerrados solo vía bloqueo admin
 - Servicios: cargados desde Google Sheets (Servicios sheet); fallback en CONFIG.SERVICIOS
 - PIN admin por defecto: 1234 (hoja Config en Google Sheets)
 - WhatsApp (CONFIG.WSP): César 573108048028, Sebastián 573025441491, Rocío 573213017130
@@ -119,8 +119,9 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 1. Crear Google Sheet → copiar ID en Code.gs (SPREADSHEET_ID)
 2. Ejecutar setup() en Apps Script para crear hojas (Citas, DiasBloquados, Config, Servicios, Barberos)
 3. Agregar columna `sinHora` en hoja Servicios y las 4 filas de servicios sin hora
-4. Desplegar como Web App (acceso: cualquier persona)
-5. Pegar URL en js/config.js (API_URL)
+4. Agregar columna `horas` en hoja DiasBloquados (después de `motivo`)
+5. Desplegar como Web App (acceso: cualquier persona)
+6. Pegar URL en js/config.js (API_URL)
 
 ## Para actualizar el backend
 1. Pegar código nuevo en Apps Script
@@ -133,6 +134,16 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - Secciones: Métricas/ventas, Citas del día (tabs por especialista), Bloquear día, Días bloqueados, Citas extraordinarias
 - Al cancelar cita: opción opcional de enviar WhatsApp al cliente (#wspNotify flotante)
 - Métricas: filtro por rango de fechas + área (caballeros/damas); gráfico de barras semanal o por día-de-semana (>31 días); ranking top 6 servicios
+
+### Bloqueo de días y horas
+- El admin puede bloquear **todo el día** o **horas específicas** (toggle radio en el formulario)
+- Horas específicas: grid de checkboxes cada 30 min (9:00 → 20:30); se almacenan como CSV en columna `horas`
+- Hoja `DiasBloquados` columnas: `fecha | barbero | motivo | horas` (horas vacío = todo el día)
+- `isDiaBlocked` en app.js: solo bloquea el día en el calendario cuando `horas` está vacío
+- `isSlotBlocked` en app.js: deshabilita slots que solapan con las horas bloqueadas (ventana de 30 min por hora bloqueada)
+- `reservar` en Code.gs valida contra bloqueos de día completo y parciales antes de guardar
+- `desbloquearDia` identifica la fila por `fecha + barbero + horas` (permite múltiples bloqueos parciales en el mismo día)
+- **Requiere columna `horas` en hoja DiasBloquados** de Google Sheets (agregar después de `motivo`)
 
 ## QR Code
 - Archivo: qr_rc_barber.png (574×574px)
