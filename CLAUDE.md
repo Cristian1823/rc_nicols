@@ -16,6 +16,7 @@ Logos/
   fondo.png             → Ilustración barbería (RGBA con transparencia, disponible para uso futuro)
 Sebastian.jpeg          → Foto de Sebastián (barbero) — usada en card de especialista
 Cesar.jpeg              → Foto de César (barbero) — usada en card de especialista
+Rocio.jpeg              → Foto de Rocío (estilista) — usada en card de especialista
 qr_rc_barber.png        → QR code para https://rc-nicols.pages.dev (fondo oscuro, módulos dorados, logo centrado 35%)
 ```
 
@@ -29,7 +30,9 @@ qr_rc_barber.png        → QR code para https://rc-nicols.pages.dev (fondo oscu
 
 ## Configuración
 - Especialistas: Sebastián (caballeros), César (caballeros), Rocío (damas)
-- Horario: todos los días (incluyendo domingo), 9:00 - 21:00, slotBase 10 min; días cerrados solo vía bloqueo admin
+- Horario: todos los días (incluyendo domingo), 9:00 - 21:00; días cerrados solo vía bloqueo admin
+- Slots caballeros: fijos cada 45 min → 09:00, 09:45, 10:30, 11:15, 12:00, 12:45, 13:30, 14:15, 15:00, 15:45, 16:30, 17:15, 18:00, 18:45, 19:30, 20:15, 21:00
+- Slots damas: dinámicos según duración del servicio (slotBase 10 min en CONFIG.HORARIO)
 - Servicios: cargados desde Google Sheets (Servicios sheet); fallback en CONFIG.SERVICIOS
 - PIN admin por defecto: 1234 (hoja Config en Google Sheets)
 - WhatsApp (CONFIG.WSP): César 573108048028, Sebastián 573025441491, Rocío 573213017130
@@ -88,9 +91,8 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
   - Se muestra/oculta con body.theme-damas .step-ilus__caballeros { display:none }
 - Option cards de servicios con iconos SVG inline (usan currentColor → heredan el tema)
 - Cards de especialistas (step 2):
-  - Foto circular 110px: Sebastián (Sebastian.jpeg, object-position: center top) y César (Cesar.jpeg, object-position: 50% 18% — es más bajito en foto)
-  - Rocío: sin foto → muestra SVG_PERSON como fallback
-  - Fallback vía addEventListener('error') en JS (nunca onerror inline — rompe el HTML)
+  - Foto circular 110px: Sebastián (Sebastian.jpeg, object-position: center top), César (Cesar.jpeg, object-position: 50% 18%) y Rocío (Rocio.jpeg)
+  - Fallback al SVG_PERSON vía addEventListener('error') en JS (nunca onerror inline — rompe el HTML)
   - Descripción dinámica: "Barbero Profesional" (caballeros) / "Estilista Profesional" (damas)
   - Cards con padding 20px, min-height 120px, foto centrada
   - Card seleccionada: borde dorado/violeta + glow en la foto
@@ -110,7 +112,7 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - Cloudflare Pages corre en Linux: todos los paths a assets deben coincidir exactamente en mayúsculas/minúsculas.
 - Header logo src inicial = "Logos/Logo Caballeros.jpeg" (no vacío) para evitar bug de iOS Safari que ignora cambios de src en img sin src.
 - iOS Safari: font-size ≥16px en inputs para evitar zoom automático; env(safe-area-inset-bottom) para notch en toast/wsp-notify.
-- Admin métricas: filtro de género en frontend (CONFIG.BARBEROS[genero]); no requiere cambios en backend.
+- Admin métricas: sin filtro por área ni ranking de servicios (privacidad entre especialistas); solo totales generales + gráfico por día.
 - Citas extraordinarias: reutilizan API.reservar sin restricción de horario; conflictos validados server-side.
 - Confirmación de reserva incluye tarjeta WhatsApp dinámica con link wa.me/ al especialista elegido.
 - sinHora: flag en CONFIG.SERVICIOS y en hoja Servicios de Sheets; controla si se salta el paso de hora.
@@ -133,17 +135,18 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - PIN almacenado en hoja Config de Google Sheets (por defecto 1234)
 - Secciones: Métricas/ventas, Citas del día (tabs por especialista), Bloquear día, Días bloqueados, Citas extraordinarias
 - Al cancelar cita: opción opcional de enviar WhatsApp al cliente (#wspNotify flotante)
-- Métricas: filtro por rango de fechas + área (caballeros/damas); gráfico de barras semanal o por día-de-semana (>31 días); ranking top 6 servicios
+- Métricas: filtro por rango de fechas (sin filtro por área); gráfico de barras semanal o por día-de-semana (>31 días); sin ranking de servicios por especialista (privacidad)
 
 ### Bloqueo de días y horas
 - El admin puede bloquear **todo el día** o **horas específicas** (toggle radio en el formulario)
-- Horas específicas: grid de checkboxes cada 30 min (9:00 → 20:30); se almacenan como CSV en columna `horas`
+- Horas específicas: grid de checkboxes con los mismos slots fijos (09:00 → 21:00, cada 45 min); se almacenan como CSV en columna `horas`
 - Hoja `DiasBloquados` columnas: `fecha | barbero | motivo | horas` (horas vacío = todo el día)
 - `isDiaBlocked` en app.js: solo bloquea el día en el calendario cuando `horas` está vacío
-- `isSlotBlocked` en app.js: deshabilita slots que solapan con las horas bloqueadas (ventana de 30 min por hora bloqueada)
-- `reservar` en Code.gs valida contra bloqueos de día completo y parciales antes de guardar
+- `isSlotBlocked` en app.js: deshabilita slots que solapan con las horas bloqueadas (ventana de 45 min por hora bloqueada); usa `String(d.horas)` defensivo
+- `reservar` en Code.gs valida contra bloqueos de día completo y parciales antes de guardar (ventana 45 min)
 - `desbloquearDia` identifica la fila por `fecha + barbero + horas` (permite múltiples bloqueos parciales en el mismo día)
-- **Requiere columna `horas` en hoja DiasBloquados** de Google Sheets (agregar después de `motivo`)
+- `getDiasBloqueados` y `reservar` en Code.gs leen la columna `horas` por posición (índice 3) si no tiene encabezado, y aplican `formatSheetTime` si Sheets la auto-convirtió a Date
+- **Columna `horas` en hoja DiasBloquados**: agregar header "horas" en celda D1 (el código funciona sin él, pero es buena práctica)
 
 ## QR Code
 - Archivo: qr_rc_barber.png (574×574px)
