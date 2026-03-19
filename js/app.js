@@ -237,7 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========== STEP 2: BARBERO (generados dinámicamente) ==========
   const BARBERO_FOTOS = {
     'Sebastián': 'Sebastian.jpeg',
-    'César':     'Cesar.jpeg'
+    'César':     'Cesar.jpeg',
+    'Rocío':     'Rocio.jpeg'
   };
 
   function renderBarberos(barberos) {
@@ -307,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!d.horas) return false; // día completo ya manejado en isDiaBlocked
       return d.horas.split(',').some(h => {
         const btMin = slotToMin(h.trim());
-        return slotMin < btMin + 30 && slotMin + duracion > btMin;
+        return slotMin < btMin + 45 && slotMin + duracion > btMin;
       });
     });
   }
@@ -416,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const servicio   = getServicioActual();
     const duracion   = servicio.duracion;
-    const allSlots   = generateSlots(duracion);
+    const allSlots   = generateSlots();
     const now        = new Date();
     const isToday    = state.fecha === formatDate(now);
     const nowMin     = now.getHours() * 60 + now.getMinutes();
@@ -450,17 +451,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Genera todos los slots posibles para la duración dada
-  function generateSlots(duracion) {
-    const slots    = [];
-    const inicioMin = CONFIG.HORARIO.inicio * 60;
-    const finMin    = CONFIG.HORARIO.fin * 60;
-    const base      = CONFIG.HORARIO.slotBase;
+  // Slots fijos de atención (cada 45 min, 9:00 → 21:00)
+  const SLOTS_FIJOS = [
+    '09:00','09:45','10:30','11:15','12:00','12:45',
+    '13:30','14:15','15:00','15:45','16:30','17:15',
+    '18:00','18:45','19:30','20:15','21:00'
+  ];
 
-    for (let m = inicioMin; m + duracion <= finMin; m += base) {
-      slots.push(minToSlot(m));
-    }
-    return slots;
+  function generateSlots() {
+    return SLOTS_FIJOS;
   }
 
   // Un slot tiene conflicto si su rango [inicio, inicio+duracion) se solapa con algún bloque ocupado

@@ -290,10 +290,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadMetricsFromFilter() {
     const fi  = document.getElementById('metricsFechaInicio').value;
     const ff  = document.getElementById('metricsFechaFin').value;
-    const gen = document.getElementById('metricsGenero').value;
     if (!fi || !ff) { showToast('Selecciona el rango de fechas', 'error'); return; }
     if (fi > ff)    { showToast('La fecha inicial debe ser antes de la final', 'error'); return; }
-    await loadMetrics(fi, ff, gen);
+    await loadMetrics(fi, ff, '');
   }
 
   async function loadMetrics(fechaInicio, fechaFin, genero) {
@@ -312,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const metrics = calcMetrics(citas);
       renderMetricCards(metrics, fechaInicio, fechaFin);
       renderWeekChart(citas, fechaInicio, fechaFin);
-      renderServicesRank(metrics.servicioCount);
     } catch {
       showToast('Error al cargar métricas', 'error');
     }
@@ -435,36 +433,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  function renderServicesRank(servicioCount) {
-    const rank    = document.getElementById('servicesRank');
-    const sorted  = Object.entries(servicioCount).sort((a, b) => b[1] - a[1]).slice(0, 6);
-    if (sorted.length === 0) { rank.innerHTML = ''; return; }
-    const max = sorted[0][1];
-    rank.innerHTML = `
-      <div class="rank-title">Servicios vendidos</div>
-      ${sorted.map(([nombre, count]) => `
-        <div class="rank-row">
-          <div class="rank-name">${escapeHtml(nombre)}</div>
-          <div class="rank-bar-wrap">
-            <div class="rank-bar" style="width:${Math.round(count / max * 100)}%"></div>
-          </div>
-          <div class="rank-count">${count}</div>
-        </div>
-      `).join('')}
-    `;
-  }
-
   // ========== BLOQUEAR DÍA ==========
 
-  // Genera el grid de checkboxes de horas (30 min, 9:00 a 20:30)
+  // Genera el grid de checkboxes usando los slots fijos de atención
   (function buildHorasGrid() {
     const grid = document.getElementById('blockHorasGrid');
-    const inicio = 9 * 60;
-    const fin    = 21 * 60;
-    for (let m = inicio; m < fin; m += 30) {
-      const hh   = String(Math.floor(m / 60)).padStart(2, '0');
-      const mm   = String(m % 60).padStart(2, '0');
-      const time = `${hh}:${mm}`;
+    const slots = [
+      '09:00','09:45','10:30','11:15','12:00','12:45',
+      '13:30','14:15','15:00','15:45','16:30','17:15',
+      '18:00','18:45','19:30','20:15','21:00'
+    ];
+    slots.forEach(time => {
       const lbl  = document.createElement('label');
       lbl.className = 'block-hour-checkbox';
       lbl.innerHTML = `<input type="checkbox" value="${time}"> ${time}`;
@@ -472,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lbl.classList.toggle('is-checked', lbl.querySelector('input').checked);
       });
       grid.appendChild(lbl);
-    }
+    });
   })();
 
   // Toggle visibilidad del grid de horas
