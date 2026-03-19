@@ -455,18 +455,61 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ========== BLOQUEAR DÍA ==========
+
+  // Genera el grid de checkboxes de horas (30 min, 9:00 a 20:30)
+  (function buildHorasGrid() {
+    const grid = document.getElementById('blockHorasGrid');
+    const inicio = 9 * 60;
+    const fin    = 21 * 60;
+    for (let m = inicio; m < fin; m += 30) {
+      const hh   = String(Math.floor(m / 60)).padStart(2, '0');
+      const mm   = String(m % 60).padStart(2, '0');
+      const time = `${hh}:${mm}`;
+      const lbl  = document.createElement('label');
+      lbl.className = 'block-hour-checkbox';
+      lbl.innerHTML = `<input type="checkbox" value="${time}"> ${time}`;
+      lbl.querySelector('input').addEventListener('change', () => {
+        lbl.classList.toggle('is-checked', lbl.querySelector('input').checked);
+      });
+      grid.appendChild(lbl);
+    }
+  })();
+
+  // Toggle visibilidad del grid de horas
+  document.querySelectorAll('input[name="blockType"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const isHoras = radio.value === 'horas' && radio.checked;
+      document.getElementById('blockHorasGroup').style.display = isHoras ? '' : 'none';
+    });
+  });
+
   document.getElementById('btnBloquear').addEventListener('click', async () => {
     const fecha   = document.getElementById('blockDate').value;
     const barbero = document.getElementById('blockBarbero').value;
     const motivo  = document.getElementById('blockMotivo').value.trim();
+    const tipo    = document.querySelector('input[name="blockType"]:checked').value;
     if (!fecha) { showToast('Selecciona una fecha', 'error'); return; }
+
+    let horas = '';
+    if (tipo === 'horas') {
+      const checked = [...document.querySelectorAll('#blockHorasGrid input:checked')].map(i => i.value);
+      if (checked.length === 0) { showToast('Selecciona al menos una hora', 'error'); return; }
+      horas = checked.join(',');
+    }
+
     try {
-      await API.bloquearDia({ fecha, barbero, motivo });
-      showToast('Día bloqueado exitosamente', 'success');
+      await API.bloquearDia({ fecha, barbero, motivo, horas });
+      showToast(horas ? 'Horas bloqueadas exitosamente' : 'Día bloqueado exitosamente', 'success');
       document.getElementById('blockDate').value   = '';
       document.getElementById('blockMotivo').value = '';
+      document.querySelectorAll('#blockHorasGrid input').forEach(i => {
+        i.checked = false;
+        i.closest('label').classList.remove('is-checked');
+      });
+      document.querySelector('input[name="blockType"][value="dia"]').checked = true;
+      document.getElementById('blockHorasGroup').style.display = 'none';
       loadDiasBloqueados();
-    } catch { showToast('Error al bloquear día', 'error'); }
+    } catch { showToast('Error al bloquear', 'error'); }
   });
 
   // ========== DÍAS BLOQUEADOS ==========
@@ -500,24 +543,30 @@ document.addEventListener('DOMContentLoaded', () => {
       const parts   = dia.fecha.split('-');
       const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
       const fechaStr = `${CONFIG.DIAS_SEMANA[dateObj.getDay()]} ${parts[2]}/${parts[1]}/${parts[0]}`;
+      const horasLabel = dia.horas
+        ? `<div class="blocked-day__horas">🕐 ${escapeHtml(dia.horas).replace(/,/g, ' · ')}</div>`
+        : `<div class="blocked-day__horas">Todo el día</div>`;
+      const horasEncoded = encodeURIComponent(dia.horas || '');
       return `
         <div class="blocked-day">
           <div class="blocked-day__info">
             <div class="blocked-day__date">${fechaStr}</div>
             <div class="blocked-day__barbero">${escapeHtml(dia.barbero)}</div>
+            ${horasLabel}
             ${dia.motivo ? `<div class="blocked-day__motivo">${escapeHtml(dia.motivo)}</div>` : ''}
           </div>
-          <button class="btn btn--danger btn--small" onclick="desbloquearDia('${dia.fecha}','${dia.barbero}')">Desbloquear</button>
+          <button class="btn btn--danger btn--small" onclick="desbloquearDia('${dia.fecha}','${dia.barbero}','${horasEncoded}')">Desbloquear</button>
         </div>
       `;
     }).join('');
   }
 
-  window.desbloquearDia = async function(fecha, barbero) {
-    if (!confirm('¿Desbloquear este día?')) return;
+  window.desbloquearDia = async function(fecha, barbero, horasEncoded) {
+    if (!confirm('¿Desbloquear este registro?')) return;
+    const horas = decodeURIComponent(horasEncoded || '');
     try {
-      await API.desbloquearDia({ fecha, barbero });
-      showToast('Día desbloqueado', 'success');
+      await API.desbloquearDia({ fecha, barbero, horas });
+      showToast('Desbloqueado exitosamente', 'success');
       loadDiasBloqueados();
     } catch { showToast('Error al desbloquear', 'error'); }
   };

@@ -291,10 +291,25 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCalendar();
   }
 
+  // Día completamente bloqueado (sin horas específicas)
   function isDiaBlocked(dateStr) {
     return state.diasBloqueados.some(
-      d => d.fecha === dateStr && (d.barbero === state.barbero || d.barbero === 'Todos')
+      d => d.fecha === dateStr && (d.barbero === state.barbero || d.barbero === 'Todos') && !d.horas
     );
+  }
+
+  // Slot bloqueado parcialmente: verifica si [slotMin, slotMin+duracion) solapa con alguna hora bloqueada (intervalos de 30 min)
+  function isSlotBlocked(dateStr, slotTime, duracion) {
+    const slotMin = slotToMin(slotTime);
+    return state.diasBloqueados.some(d => {
+      if (d.fecha !== dateStr) return false;
+      if (d.barbero !== state.barbero && d.barbero !== 'Todos') return false;
+      if (!d.horas) return false; // día completo ya manejado en isDiaBlocked
+      return d.horas.split(',').some(h => {
+        const btMin = slotToMin(h.trim());
+        return slotMin < btMin + 30 && slotMin + duracion > btMin;
+      });
+    });
   }
 
   // ========== STEP 3: CALENDAR ==========
@@ -409,9 +424,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let html = '';
     let disponibles = 0;
     allSlots.forEach(slot => {
-      const isPast     = isToday && slotToMin(slot) < nowMin;
-      const isConflict = hayConflicto(slot, duracion, ocupados);
-      const disabled   = isPast || isConflict;
+      const isPast      = isToday && slotToMin(slot) < nowMin;
+      const isConflict  = hayConflicto(slot, duracion, ocupados);
+      const isHoraBloq  = isSlotBlocked(state.fecha, slot, duracion);
+      const disabled    = isPast || isConflict || isHoraBloq;
       if (!disabled) disponibles++;
       const cls        = disabled ? 'slot slot--disabled' : 'slot';
       html += `<button class="${cls}" data-hora="${slot}" ${disabled ? 'disabled' : ''}>${slot}</button>`;

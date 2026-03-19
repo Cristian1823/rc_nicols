@@ -208,6 +208,36 @@ function reservar(data) {
   var nuevoInicio = timeToMin(data.hora);
   var nuevoFin    = timeToMin(data.horaFin);
 
+  // Verificar que el día/hora no esté bloqueado por el admin
+  if (!esSinHora) {
+    var diasSheet   = ss.getSheetByName('DiasBloquados');
+    var diasData    = diasSheet.getDataRange().getValues();
+    var diasHeaders = diasData[0];
+    var dFechaIdx   = diasHeaders.indexOf('fecha');
+    var dBarberoIdx = diasHeaders.indexOf('barbero');
+    var dHorasIdx   = diasHeaders.indexOf('horas');
+
+    for (var j = 1; j < diasData.length; j++) {
+      var dRow    = diasData[j];
+      var dFecha  = formatSheetDate(dRow[dFechaIdx]);
+      if (dFecha !== data.fecha) continue;
+      var dBarb   = dRow[dBarberoIdx];
+      if (dBarb !== data.barbero && dBarb !== 'Todos') continue;
+      var dHoras  = dHorasIdx >= 0 ? (dRow[dHorasIdx] || '') : '';
+      if (!dHoras) {
+        return { error: 'Este día está bloqueado' };
+      }
+      // Bloqueo parcial: verificar solapamiento con [nuevoInicio, nuevoFin)
+      var blockedList = String(dHoras).split(',');
+      for (var k = 0; k < blockedList.length; k++) {
+        var btMin = timeToMin(blockedList[k].trim());
+        if (nuevoInicio < btMin + 30 && nuevoFin > btMin) {
+          return { error: 'Este horario está bloqueado' };
+        }
+      }
+    }
+  }
+
   // Verificar solapamiento con citas existentes (solo si tiene hora definida)
   for (var i = 1; i < existing.length && !esSinHora; i++) {
     var row = existing[i];
@@ -265,7 +295,8 @@ function bloquearDia(data) {
   sheet.appendRow([
     data.fecha,
     data.barbero,
-    data.motivo || ''
+    data.motivo || '',
+    data.horas || ''
   ]);
 
   return { success: true };
@@ -277,18 +308,22 @@ function desbloquearDia(data) {
   const sheet = ss.getSheetByName('DiasBloquados');
   const rows = sheet.getDataRange().getValues();
   const headers = rows[0];
-  const fechaIdx = headers.indexOf('fecha');
+  const fechaIdx  = headers.indexOf('fecha');
   const barberoIdx = headers.indexOf('barbero');
+  const horasIdx  = headers.indexOf('horas');
+
+  const horasParam = data.horas || '';
 
   for (let i = rows.length - 1; i >= 1; i--) {
-    const rowFecha = formatSheetDate(rows[i][fechaIdx]);
-    if (rowFecha === data.fecha && rows[i][barberoIdx] === data.barbero) {
+    const rowFecha  = formatSheetDate(rows[i][fechaIdx]);
+    const rowHoras  = horasIdx >= 0 ? (rows[i][horasIdx] || '') : '';
+    if (rowFecha === data.fecha && rows[i][barberoIdx] === data.barbero && rowHoras === horasParam) {
       sheet.deleteRow(i + 1);
       return { success: true };
     }
   }
 
-  return { error: 'Día bloqueado no encontrado' };
+  return { error: 'Registro no encontrado' };
 }
 
 // ========== GET SERVICIOS ==========

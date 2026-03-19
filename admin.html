@@ -109,6 +109,21 @@
             </select>
           </div>
           <div class="form-group">
+            <label>Tipo de bloqueo</label>
+            <div class="block-type-toggle">
+              <label class="block-type-option">
+                <input type="radio" name="blockType" value="dia" checked> Todo el día
+              </label>
+              <label class="block-type-option">
+                <input type="radio" name="blockType" value="horas"> Horas específicas
+              </label>
+            </div>
+          </div>
+          <div class="form-group" id="blockHorasGroup" style="display:none">
+            <label>Selecciona las horas a bloquear</label>
+            <div class="block-hours-grid" id="blockHorasGrid"></div>
+          </div>
+          <div class="form-group">
             <label for="blockMotivo">Motivo (opcional)</label>
             <input type="text" class="form-input" id="blockMotivo" placeholder="Ej: Día festivo">
           </div>

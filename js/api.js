@@ -64,12 +64,12 @@ const API = {
     return this._jsonp({ action: 'cancelarCita', id });
   },
 
-  async bloquearDia({ fecha, barbero, motivo }) {
-    return this._jsonp({ action: 'bloquearDia', fecha, barbero, motivo });
+  async bloquearDia({ fecha, barbero, motivo, horas }) {
+    return this._jsonp({ action: 'bloquearDia', fecha, barbero, motivo, horas: horas || '' });
   },
 
-  async desbloquearDia({ fecha, barbero }) {
-    return this._jsonp({ action: 'desbloquearDia', fecha, barbero });
+  async desbloquearDia({ fecha, barbero, horas }) {
+    return this._jsonp({ action: 'desbloquearDia', fecha, barbero, horas: horas || '' });
   },
 
   async verificarPin(pin) {
