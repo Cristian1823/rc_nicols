@@ -322,7 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const date = new Date(year, month, day);
       date.setHours(0, 0, 0, 0);
       const dateStr   = formatDate(date);
-      const isSunday  = date.getDay() === CONFIG.DIA_CERRADO;
       const isPast    = date < today;
       const isBlocked = isDiaBlocked(dateStr);
       const isToday   = date.getTime() === today.getTime();
@@ -331,10 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
       let classes = 'calendar__day';
       if (isToday)    classes += ' calendar__day--today';
       if (isSelected) classes += ' calendar__day--selected';
-      if (isSunday || isPast) classes += ' calendar__day--disabled';
+      if (isPast) classes += ' calendar__day--disabled';
       if (isBlocked)  classes += ' calendar__day--disabled calendar__day--blocked';
 
-      const disabled = isSunday || isPast || isBlocked ? 'disabled' : '';
+      const disabled = isPast || isBlocked ? 'disabled' : '';
 
       html += `<button class="${classes}" data-date="${dateStr}" ${disabled}>${day}</button>`;
     }
