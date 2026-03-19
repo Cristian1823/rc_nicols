@@ -164,7 +164,10 @@ function getDiasBloqueados() {
   const ss = getSpreadsheet();
   const sheet = ss.getSheetByName('DiasBloquados');
   const data = sheet.getDataRange().getValues();
+  if (data.length === 0) return { diasBloqueados: [] };
+
   const headers = data[0];
+  const horasIdx = headers.indexOf('horas');
 
   const dias = [];
 
@@ -186,6 +189,18 @@ function getDiasBloqueados() {
         dia[h] = row[j];
       }
     });
+
+    // Si la columna 'horas' no tiene encabezado (columna D sin nombre),
+    // leerla directamente por posición (índice 3)
+    if (horasIdx === -1 && dia.horas === undefined) {
+      var horasVal = row.length > 3 ? row[3] : '';
+      if (horasVal instanceof Date) {
+        dia.horas = formatSheetTime(horasVal);
+      } else {
+        dia.horas = String(horasVal || '');
+      }
+    }
+
     dias.push(dia);
   }
 
@@ -231,7 +246,8 @@ function reservar(data) {
       if (dFecha !== data.fecha) continue;
       var dBarb   = dRow[dBarberoIdx];
       if (dBarb !== data.barbero && dBarb !== 'Todos') continue;
-      var dHorasRaw = dHorasIdx >= 0 ? dRow[dHorasIdx] : '';
+      // Si no hay columna 'horas' en el encabezado, leer columna D (índice 3) directamente
+      var dHorasRaw = dHorasIdx >= 0 ? dRow[dHorasIdx] : (dRow.length > 3 ? dRow[3] : '');
       var dHoras = dHorasRaw instanceof Date ? formatSheetTime(dHorasRaw) : String(dHorasRaw || '');
       if (!dHoras) {
         return { error: 'Este día está bloqueado' };
