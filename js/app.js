@@ -235,17 +235,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ========== STEP 2: BARBERO (generados dinámicamente) ==========
+  const BARBERO_FOTOS = {
+    'Sebastián': 'Sebastian.jpeg',
+    'César':     'Cesar.jpeg'
+  };
+
   function renderBarberos(barberos) {
     const container = document.getElementById('barberoOptions');
-    container.innerHTML = barberos.map(b =>
-      `<div class="option-card" data-barbero="${b}">` +
-        `<div class="option-card__icon">${SVG_PERSON}</div>` +
+    container.innerHTML = barberos.map(b => {
+      const foto = BARBERO_FOTOS[b];
+      const iconHTML = foto
+        ? `<img src="${foto}" alt="${b}" class="option-card__photo" data-nombre="${b}">`
+        : SVG_PERSON;
+      return `<div class="option-card" data-barbero="${b}">` +
+        `<div class="option-card__icon${foto ? ' option-card__icon--photo' : ''}">${iconHTML}</div>` +
         `<div class="option-card__content">` +
           `<div class="option-card__title">${b}</div>` +
-          `<div class="option-card__detail">Especialista profesional</div>` +
+          `<div class="option-card__detail">${CONFIG.BARBEROS.damas.includes(b) ? 'Estilista Profesional' : 'Barbero Profesional'}</div>` +
         `</div>` +
-      `</div>`
-    ).join('');
+      `</div>`;
+    }).join('');
+
+    // Fallback al SVG si la foto no carga
+    container.querySelectorAll('.option-card__photo').forEach(img => {
+      img.addEventListener('error', () => {
+        const icon = img.parentElement;
+        icon.classList.remove('option-card__icon--photo');
+        icon.innerHTML = SVG_PERSON;
+      });
+    });
 
     container.querySelectorAll('[data-barbero]').forEach(card => {
       card.addEventListener('click', () => {
@@ -328,8 +346,15 @@ document.addEventListener('DOMContentLoaded', () => {
         calDays.querySelectorAll('.calendar__day').forEach(b => b.classList.remove('calendar__day--selected'));
         btn.classList.add('calendar__day--selected');
         state.fecha = btn.dataset.date;
-        loadSlots();
-        goToStep(4);
+        const svcActual = getServicioActual();
+        if (svcActual && svcActual.sinHora) {
+          state.hora = 'A coordinar';
+          updateSummary();
+          goToStep(5);
+        } else {
+          loadSlots();
+          goToStep(4);
+        }
       });
     });
   }
@@ -445,10 +470,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const parts   = state.fecha.split('-');
     const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
     document.getElementById('sumFecha').textContent = `${CONFIG.DIAS_SEMANA[dateObj.getDay()]} ${parts[2]} de ${CONFIG.MESES[dateObj.getMonth()]}`;
-    document.getElementById('sumHora').textContent  = state.hora;
+    const svcResumen = getServicioActual();
+    document.getElementById('sumHora').textContent = (svcResumen && svcResumen.sinHora) ? 'A coordinar con la estilista' : state.hora;
   }
 
-  document.getElementById('backToStep4').addEventListener('click', () => goToStep(4));
+  document.getElementById('backToStep4').addEventListener('click', () => {
+    const svc = getServicioActual();
+    goToStep(svc && svc.sinHora ? 3 : 4);
+  });
 
   document.getElementById('clientForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -466,14 +495,15 @@ document.addEventListener('DOMContentLoaded', () => {
     btnConfirm.textContent = 'Reservando...';
 
     const servicio = getServicioActual();
-    const duracion = servicio.duracion;
-    const finMin   = slotToMin(state.hora) + duracion;
-    const horaFin  = minToSlot(finMin);
+    const esSinHora = servicio && servicio.sinHora;
+    const duracion  = esSinHora ? 0 : servicio.duracion;
+    const hora      = esSinHora ? 'A coordinar' : state.hora;
+    const horaFin   = esSinHora ? 'A coordinar' : minToSlot(slotToMin(state.hora) + duracion);
 
     try {
       await API.reservar({
         fecha:    state.fecha,
-        hora:     state.hora,
+        hora:     hora,
         horaFin:  horaFin,
         duracion: duracion,
         barbero:  state.barbero,
@@ -482,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
         telefono: telefono
       });
 
-      showConfirmation(servicio.nombre, state.barbero, state.fecha, state.hora, horaFin, nombre);
+      showConfirmation(servicio.nombre, state.barbero, state.fecha, hora, horaFin, nombre, esSinHora);
       goToStep(6);
     } catch {
       showToast('Error al reservar. Intenta de nuevo.', 'error');
@@ -493,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ========== STEP 6: CONFIRMATION ==========
-  function showConfirmation(servicio, barbero, fecha, hora, horaFin, cliente) {
+  function showConfirmation(servicio, barbero, fecha, hora, horaFin, cliente, sinHora = false) {
     // Limpiar tarjeta WhatsApp anterior si existe
     const oldWsp = document.querySelector('.wsp-card');
     if (oldWsp) oldWsp.remove();
@@ -501,8 +531,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const parts    = fecha.split('-');
     const dateObj  = new Date(parts[0], parts[1] - 1, parts[2]);
     const fechaStr = `${CONFIG.DIAS_SEMANA[dateObj.getDay()]} ${parts[2]} de ${CONFIG.MESES[dateObj.getMonth()]} ${parts[0]}`;
-    const durMin   = slotToMin(horaFin) - slotToMin(hora);
-    const durStr   = formatDuracion(durMin);
+
+    const horaRow = sinHora
+      ? `<div class="confirmation__detail-row">
+           <span class="confirmation__detail-label">Hora</span>
+           <span class="confirmation__detail-value">A coordinar con la estilista</span>
+         </div>`
+      : `<div class="confirmation__detail-row">
+           <span class="confirmation__detail-label">Hora</span>
+           <span class="confirmation__detail-value">${hora} – ${horaFin}</span>
+         </div>
+         <div class="confirmation__detail-row">
+           <span class="confirmation__detail-label">Duración estimada</span>
+           <span class="confirmation__detail-value">${formatDuracion(slotToMin(horaFin) - slotToMin(hora))}</span>
+         </div>`;
 
     document.getElementById('confirmationDetail').innerHTML = `
       <div class="confirmation__detail-row">
@@ -521,27 +563,27 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="confirmation__detail-label">Fecha</span>
         <span class="confirmation__detail-value">${fechaStr}</span>
       </div>
-      <div class="confirmation__detail-row">
-        <span class="confirmation__detail-label">Hora</span>
-        <span class="confirmation__detail-value">${hora} – ${horaFin}</span>
-      </div>
-      <div class="confirmation__detail-row">
-        <span class="confirmation__detail-label">Duración estimada</span>
-        <span class="confirmation__detail-value">${durStr}</span>
-      </div>
+      ${horaRow}
     `;
 
     const wsp = CONFIG.WSP[barbero];
+    const wspTitulo = sinHora
+      ? '¡Coordina tu hora con Rocío!'
+      : '¿Tienes alguna duda?';
+    const wspSub = sinHora
+      ? `Contáctala por WhatsApp para definir la hora de tu <strong>${servicio}</strong>`
+      : `Escríbele a <strong>${wsp ? wsp.nombre : barbero}</strong> por WhatsApp`;
+
     const wspCard = wsp ? `
-      <a class="wsp-card" href="https://wa.me/${wsp.numero}" target="_blank" rel="noopener">
+      <a class="wsp-card${sinHora ? ' wsp-card--destacado' : ''}" href="https://wa.me/${wsp.numero}" target="_blank" rel="noopener">
         <div class="wsp-card__icon">
           <svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M16 2C8.268 2 2 8.268 2 16c0 2.522.658 4.888 1.806 6.938L2 30l7.282-1.776A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.9-1.612l-.42-.252-4.326 1.054 1.09-4.2-.276-.432A11.56 11.56 0 014.4 16C4.4 9.593 9.593 4.4 16 4.4S27.6 9.593 27.6 16 22.407 27.6 16 27.6zm6.344-8.67c-.348-.174-2.06-1.016-2.38-1.132-.32-.116-.552-.174-.784.174-.232.348-.9 1.132-1.102 1.364-.202.232-.404.26-.752.086-.348-.174-1.47-.542-2.8-1.726-1.034-.922-1.732-2.06-1.934-2.408-.202-.348-.022-.536.152-.71.156-.154.348-.404.522-.606.174-.202.232-.348.348-.58.116-.232.058-.434-.029-.608-.087-.174-.784-1.89-1.074-2.588-.282-.68-.57-.588-.784-.598l-.666-.012c-.232 0-.608.087-.926.434-.318.347-1.218 1.19-1.218 2.902s1.246 3.366 1.42 3.598c.174.232 2.452 3.742 5.942 5.248.83.358 1.478.572 1.984.732.834.264 1.594.226 2.194.138.67-.1 2.06-.842 2.35-1.656.29-.814.29-1.512.204-1.658-.086-.144-.318-.23-.666-.404z"/>
           </svg>
         </div>
         <div class="wsp-card__text">
-          <div class="wsp-card__title">¿Tienes alguna duda?</div>
-          <div class="wsp-card__sub">Escríbele a <strong>${wsp.nombre}</strong> por WhatsApp</div>
+          <div class="wsp-card__title">${wspTitulo}</div>
+          <div class="wsp-card__sub">${wspSub}</div>
         </div>
         <div class="wsp-card__arrow">&#8594;</div>
       </a>

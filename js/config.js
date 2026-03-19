@@ -28,7 +28,11 @@ const CONFIG = {
       { id: 'corte_dama',        nombre: 'Corte Dama',            precio: '$14k',      duracion: 30  },
       { id: 'depilacion_ceja',   nombre: 'Depilación Ceja',       precio: '$9k',       duracion: 10  },
       { id: 'depilacion_bigote', nombre: 'Depilación Bigote',     precio: '$6k',       duracion: 10  },
-      { id: 'depilacion_axila',  nombre: 'Depilación Axila',      precio: '$12k',      duracion: 20  }
+      { id: 'depilacion_axila',  nombre: 'Depilación Axila',      precio: '$12k',      duracion: 20  },
+      { id: 'keratina',          nombre: 'Keratina',              precio: 'A convenir', duracion: null, sinHora: true },
+      { id: 'celulas_madre',     nombre: 'Células Madre',         precio: 'A convenir', duracion: null, sinHora: true },
+      { id: 'alisado',           nombre: 'Alisado',               precio: 'A convenir', duracion: null, sinHora: true },
+      { id: 'cepillado',         nombre: 'Cepillado',             precio: 'A convenir', duracion: null, sinHora: true }
     ]
   },
 

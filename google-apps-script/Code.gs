@@ -203,11 +203,13 @@ function reservar(data) {
     return parseInt(parts[0]) * 60 + parseInt(parts[1] || 0);
   }
 
+  var esSinHora = (data.hora === 'A coordinar');
+
   var nuevoInicio = timeToMin(data.hora);
   var nuevoFin    = timeToMin(data.horaFin);
 
-  // Verificar solapamiento con citas existentes
-  for (var i = 1; i < existing.length; i++) {
+  // Verificar solapamiento con citas existentes (solo si tiene hora definida)
+  for (var i = 1; i < existing.length && !esSinHora; i++) {
     var row = existing[i];
     var rowFecha = formatSheetDate(row[fechaIdx]);
     if (rowFecha !== data.fecha || row[barberoIdx] !== data.barbero || row[estadoIdx] === 'cancelada') continue;
@@ -296,23 +298,28 @@ function getServicios(genero) {
   if (!sheet) return { servicios: [] };
 
   const data = sheet.getDataRange().getValues();
-  const headers = data[0]; // genero, id, nombre, precio, duracion
+  const headers = data[0]; // genero, id, nombre, precio, duracion, sinHora
   const generoIdx  = headers.indexOf('genero');
   const idIdx      = headers.indexOf('id');
   const nombreIdx  = headers.indexOf('nombre');
   const precioIdx  = headers.indexOf('precio');
   const duracionIdx= headers.indexOf('duracion');
+  const sinHoraIdx = headers.indexOf('sinHora');
 
   const servicios = [];
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (!genero || row[generoIdx] === genero) {
-      servicios.push({
+      const svc = {
         id:      row[idIdx],
         nombre:  row[nombreIdx],
         precio:  row[precioIdx],
-        duracion: Number(row[duracionIdx])
-      });
+        duracion: row[duracionIdx] === '' || row[duracionIdx] === null ? null : Number(row[duracionIdx])
+      };
+      if (sinHoraIdx !== -1 && row[sinHoraIdx] === true) {
+        svc.sinHora = true;
+      }
+      servicios.push(svc);
     }
   }
 

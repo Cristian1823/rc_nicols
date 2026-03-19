@@ -5,28 +5,31 @@
 index.html              → Interfaz cliente (landing género + 6 pasos de reserva)
 admin.html              → Panel admin (PIN login, gestión citas, bloqueo días)
 css/styles.css          → Estilos base + tema Caballeros (oscuro/dorado) + tema Damas (blanco/lila)
-js/config.js            → Configuración (barberos, servicios, horario, API URL)
+js/config.js            → Configuración (barberos, servicios, horario, API URL, WSP)
 js/api.js               → Comunicación con backend via JSONP
 js/app.js               → Lógica del cliente (selección género, calendario, slots, reservas)
-js/admin.js             → Lógica admin (PIN, citas, bloquear días)
+js/admin.js             → Lógica admin (PIN, citas, bloquear días, métricas, citas extraordinarias)
 google-apps-script/Code.gs → Backend Google Apps Script
 Logos/
   Logo Caballeros.jpeg  → Logo RC Barber & Spa (letras crema sobre negro)
-  Logo damas.jpeg       → Logo RC Nicoll's (círculo morado sobre negro)
+  Logo Damas.jpeg       → Logo RC Nicoll's (círculo morado sobre negro)  ← D mayúscula (GitHub Pages es case-sensitive)
   fondo.png             → Ilustración barbería (RGBA con transparencia, disponible para uso futuro)
+qr_rc_barber.png        → QR code para https://cristian1823.github.io/rc_nicols/ (fondo oscuro, módulos dorados, logo centrado 35%)
 ```
 
 ## Stack
-- Frontend: HTML/CSS/JS vanilla (sin frameworks)
+- Frontend: HTML/CSS/JS vanilla (sin frameworks) + Anime.js v3.2.1 (animaciones de iconos)
 - Backend: Google Apps Script desplegado como Web App
-- Base de datos: Google Sheets (hojas: Citas, DiasBloquados, Config)
+- Base de datos: Google Sheets (hojas: Citas, DiasBloquados, Config, Servicios, Barberos)
 - Comunicación: JSONP (evita problemas de CORS con Google Apps Script)
+- Deploy: Cloudflare Pages → https://rc-nicols.pages.dev
 
 ## Configuración
-- Barberos: Carlos, Miguel
-- Horario: Lunes a Sábado, 8:00 - 18:00 (domingos cerrado)
-- Servicios: Corte+Barba (1h), Solo Corte (1h)
+- Especialistas: Sebastián (caballeros), César (caballeros), Rocío (damas)
+- Horario: Lunes a Sábado, 9:00 - 21:00 (domingos cerrado), slotBase 10 min
+- Servicios: cargados desde Google Sheets (Servicios sheet); fallback en CONFIG.SERVICIOS
 - PIN admin por defecto: 1234 (hoja Config en Google Sheets)
+- WhatsApp (CONFIG.WSP): César 573108048028, Sebastián 573025441491, Rocío 573213017130
 
 ## Flujo del cliente
 1. **Landing de género** (`#genderLanding`): pantalla fullscreen fija con dos tarjetas
@@ -72,9 +75,10 @@ Logos/
 - Option cards con iconos SVG inline (reemplazan emojis):
   - corte_barba: tijeras + silueta de barba
   - solo_corte: tijeras con punto central
-  - barberos (Carlos/Miguel): silueta de persona + mini-tijeras badge
+  - barberos (Sebastián/César/Rocío): silueta de persona + mini-tijeras badge
   - Contenedor icono: fondo con borde dorado/violeta, se ilumina al seleccionar
   - Card seleccionada tiene línea de acento vertical izquierda (::before)
+  - Iconos animados con Anime.js: float suave (translateY 0→-5px) con delay escalonado por índice
 - Títulos de pasos: gradiente dorado sutil en caballeros (blanco → dorado)
 - Confirmation icon: encerrado en círculo con borde dorado y glow
 
@@ -87,10 +91,16 @@ Logos/
 - Los logos tienen fondo negro en el JPEG → usar object-fit: contain (no cover).
 - SVG icons inline en option cards: usan currentColor → heredan el color del tema automáticamente.
 - fondo.png fue procesado con Pillow para tener canal alpha real (RGBA, 76.8% transparente). No necesita mix-blend-mode.
+- GitHub Pages es case-sensitive (Linux): todos los paths a assets deben coincidir exactamente (ej: "Logo Damas.jpeg" con D mayúscula).
+- Header logo src inicial = "Logos/Logo Caballeros.jpeg" (no vacío) para evitar bug de iOS Safari que ignora cambios de src en img sin src.
+- iOS Safari: font-size ≥16px en inputs para evitar zoom automático; env(safe-area-inset-bottom) para notch en toast/wsp-notify.
+- Admin métricas: filtro de género en frontend (CONFIG.BARBEROS[genero]); no requiere cambios en backend.
+- Citas extraordinarias: reutilizan API.reservar sin restricción de horario; conflictos validados server-side.
+- Confirmación de reserva incluye tarjeta WhatsApp dinámica con link wa.me/ al especialista elegido.
 
 ## Para conectar el backend
 1. Crear Google Sheet → copiar ID en Code.gs (SPREADSHEET_ID)
-2. Ejecutar setup() en Apps Script para crear hojas
+2. Ejecutar setup() en Apps Script para crear hojas (Citas, DiasBloquados, Config, Servicios, Barberos)
 3. Desplegar como Web App (acceso: cualquier persona)
 4. Pegar URL en js/config.js (API_URL)
 
@@ -98,3 +108,17 @@ Logos/
 1. Pegar código nuevo en Apps Script
 2. Implementar > Administrar implementaciones > lápiz > Versión: "Implementación nueva" > Implementar
 3. La URL se mantiene igual
+
+## Admin panel (admin.html)
+- Acceso solo por URL directa (sin link desde index.html)
+- PIN almacenado en hoja Config de Google Sheets (por defecto 1234)
+- Secciones: Métricas/ventas, Citas del día (tabs por especialista), Bloquear día, Días bloqueados, Citas extraordinarias
+- Al cancelar cita: opción opcional de enviar WhatsApp al cliente (#wspNotify flotante)
+- Métricas: filtro por rango de fechas + área (caballeros/damas); gráfico de barras semanal o por día-de-semana (>31 días); ranking top 6 servicios
+
+## QR Code
+- Archivo: qr_rc_barber.png (574×574px)
+- URL: https://rc-nicols.pages.dev
+- Generado con Python (qrcode + Pillow): fondo #1a1a1a, módulos dorados (200,169,110)
+- Logo Caballeros centrado al 35% del tamaño del QR; ERROR_CORRECT_H para tolerancia con logo overlay
+- Para regenerar: ejecutar script Python con qrcode y Pillow instalados

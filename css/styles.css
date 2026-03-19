@@ -288,6 +288,41 @@ body.theme-damas .option-card__icon svg {
   animation: neonPinkPulse 2.5s ease-in-out infinite;
 }
 
+/* Cards de barbero más grandes */
+#barberoOptions .option-card {
+  padding: 20px 18px;
+  min-height: 120px;
+  align-items: center;
+}
+
+/* Foto de barbero */
+.option-card__icon--photo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  padding: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.option-card__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 50%;
+  display: block;
+}
+/* César es más bajito en foto → se ajusta para que el rostro quede centrado */
+.option-card__photo[data-nombre="César"] {
+  object-position: 50% 18%;
+}
+.option-card--selected .option-card__icon--photo {
+  box-shadow: 0 0 0 3px var(--gold), 0 0 18px rgba(200, 169, 110, 0.45);
+}
+body.theme-damas .option-card--selected .option-card__icon--photo {
+  box-shadow: 0 0 0 3px #8b5cf6, 0 0 18px rgba(139, 92, 246, 0.45);
+}
+
 .svc-icon {
   width: 24px;
   height: 24px;
@@ -697,6 +732,23 @@ body.theme-damas .wsp-card__title { color: #c4b5fd; }
 body.theme-damas .wsp-card__sub { color: #ede9fe; }
 body.theme-damas .wsp-card__sub strong { color: #a78bfa; }
 body.theme-damas .wsp-card__arrow { color: #a78bfa; }
+
+/* WSP destacado para servicios sin hora (Keratina, Alisado, etc.) */
+body.theme-damas .wsp-card--destacado {
+  border-width: 2px;
+  border-color: #a78bfa;
+  padding: 18px;
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.15), 0 4px 20px rgba(167, 139, 250, 0.2);
+}
+body.theme-damas .wsp-card--destacado .wsp-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #a78bfa;
+}
+body.theme-damas .wsp-card--destacado .wsp-card__icon {
+  width: 52px;
+  height: 52px;
+}
 
 /* ========== SUMMARY CARD ========== */
 .summary {
