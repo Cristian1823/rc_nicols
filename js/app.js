@@ -71,6 +71,14 @@ function minToSlot(min) {
   return String(Math.floor(min / 60)).padStart(2, '0') + ':' + String(min % 60).padStart(2, '0');
 }
 
+function to12h(timeStr) {
+  if (!timeStr || timeStr === 'A coordinar') return timeStr;
+  const [h, m] = timeStr.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
 // ========== APP ==========
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -431,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const disabled    = isPast || isConflict || isHoraBloq;
       if (!disabled) disponibles++;
       const cls        = disabled ? 'slot slot--disabled' : 'slot';
-      html += `<button class="${cls}" data-hora="${slot}" ${disabled ? 'disabled' : ''}>${slot}</button>`;
+      html += `<button class="${cls}" data-hora="${slot}" ${disabled ? 'disabled' : ''}>${to12h(slot)}</button>`;
     });
 
     if (disponibles === 0) {
@@ -496,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
     document.getElementById('sumFecha').textContent = `${CONFIG.DIAS_SEMANA[dateObj.getDay()]} ${parts[2]} de ${CONFIG.MESES[dateObj.getMonth()]}`;
     const svcResumen = getServicioActual();
-    document.getElementById('sumHora').textContent = (svcResumen && svcResumen.sinHora) ? 'A coordinar con la estilista' : state.hora;
+    document.getElementById('sumHora').textContent = (svcResumen && svcResumen.sinHora) ? 'A coordinar con la estilista' : to12h(state.hora);
   }
 
   document.getElementById('backToStep4').addEventListener('click', () => {
@@ -564,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
          </div>`
       : `<div class="confirmation__detail-row">
            <span class="confirmation__detail-label">Hora</span>
-           <span class="confirmation__detail-value">${hora} – ${horaFin}</span>
+           <span class="confirmation__detail-value">${to12h(hora)} – ${to12h(horaFin)}</span>
          </div>
          <div class="confirmation__detail-row">
            <span class="confirmation__detail-label">Duración estimada</span>
