@@ -117,6 +117,7 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - Confirmación de reserva incluye tarjeta WhatsApp dinámica con link wa.me/ al especialista elegido.
 - sinHora: flag en CONFIG.SERVICIOS y en hoja Servicios de Sheets; controla si se salta el paso de hora.
 - Horarios en formato 12h (AM/PM) para el cliente: función `to12h(timeStr)` en app.js convierte el display de slots, resumen y confirmación. La lógica interna y el backend siguen usando formato 24h (`HH:MM`).
+- Error de conexión en slots: si `API.getSlots` falla (timeout, sin internet), se muestra "Sin conexión a internet..." y se aborta la carga. Antes el `catch` silencioso dejaba `ocupados = []` y todos los slots aparecían disponibles.
 
 ## Para conectar el backend
 1. Crear Google Sheet → copiar ID en Code.gs (SPREADSHEET_ID)
