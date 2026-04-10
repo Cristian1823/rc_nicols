@@ -417,7 +417,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await API.getSlots(state.fecha, state.barbero);
       ocupados = data.ocupados || [];
     } catch {
-      ocupados = [];
+      loading.style.display = 'none';
+      grid.style.display    = 'grid';
+      grid.innerHTML = '<p class="slots-empty">Sin conexión a internet. Verifica tu conexión e intenta de nuevo.</p>';
+      return;
     }
 
     loading.style.display = 'none';
