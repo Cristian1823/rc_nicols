@@ -275,12 +275,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     container.querySelectorAll('[data-barbero]').forEach(card => {
-      card.addEventListener('click', () => {
+      card.addEventListener('click', async () => {
         container.querySelectorAll('[data-barbero]').forEach(c => c.classList.remove('option-card--selected'));
         card.classList.add('option-card--selected');
         state.barbero = card.dataset.barbero;
-        loadDiasBloqueados();
-        setTimeout(() => goToStep(3), 300);
+        await loadDiasBloqueados();
+        goToStep(3);
       });
     });
 
