@@ -184,7 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.querySelectorAll('.gender-card').forEach(card => {
-    card.addEventListener('click', () => selectGenero(card.dataset.genero));
+    card.addEventListener('click', () => {
+      if (card.classList.contains('gender-card--proximamente')) {
+        showToast('¡Próximamente! El área de Damas estará disponible muy pronto.', '');
+        return;
+      }
+      selectGenero(card.dataset.genero);
+    });
   });
 
   document.getElementById('backToGender').addEventListener('click', () => {

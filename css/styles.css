@@ -1652,6 +1652,40 @@ body.theme-damas .wsp-card--destacado .wsp-card__icon {
     linear-gradient(165deg, #160630 0%, #3b1177 20%, #6d28d9 38%, #9333ea 52%, #c4a0e8 64%, #f0bfcf 78%, #fad8e8 88%, #fef1f5 97%);
 }
 
+/* --- Próximamente overlay --- */
+.gender-card--proximamente {
+  cursor: default;
+  opacity: 0.72;
+  filter: grayscale(18%);
+}
+
+.gender-card__prox-badge {
+  display: none;
+}
+
+.gender-card--proximamente .gender-card__prox-badge {
+  display: block;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(109, 40, 217, 0.85);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.25);
+  pointer-events: none;
+}
+
+.gender-card__cta--prox {
+  opacity: 0.7;
+}
+
 /* Hover */
 @media (hover: hover) {
   .gender-card--caballeros:hover {
@@ -1659,7 +1693,7 @@ body.theme-damas .wsp-card--destacado .wsp-card__icon {
       radial-gradient(ellipse 75% 50% at 50% 40%, rgba(220, 175, 70, 0.3) 0%, transparent 70%),
       linear-gradient(175deg, #3d280c 0%, #28190a 35%, #181106 70%, #0c0a05 100%);
   }
-  .gender-card--damas:hover {
+  .gender-card--damas:not(.gender-card--proximamente):hover {
     background:
       radial-gradient(ellipse 80% 55% at 50% 38%, rgba(255, 255, 255, 0.18) 0%, rgba(216, 180, 254, 0.45) 35%, transparent 70%),
       linear-gradient(175deg, #6d28d9 0%, #5b21b6 28%, #4c1d95 55%, #250e6e 80%, #0c0422 100%);
