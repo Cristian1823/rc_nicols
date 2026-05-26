@@ -118,6 +118,8 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - sinHora: flag en CONFIG.SERVICIOS y en hoja Servicios de Sheets; controla si se salta el paso de hora.
 - Horarios en formato 12h (AM/PM) para el cliente: función `to12h(timeStr)` en app.js convierte el display de slots, resumen y confirmación. La lógica interna y el backend siguen usando formato 24h (`HH:MM`).
 - Error de conexión en slots: si `API.getSlots` falla (timeout, sin internet), se muestra "Sin conexión a internet..." y se aborta la carga. Antes el `catch` silencioso dejaba `ocupados = []` y todos los slots aparecían disponibles.
+- Carga de días bloqueados: `loadDiasBloqueados()` se hace con `await` antes de `goToStep(3)`. Sin await había race condition en móvil: el calendario se mostraba con `diasBloqueados = []` mientras la API aún respondía, permitiendo seleccionar días bloqueados.
+- Sección Damas "Próximamente": la card de Damas en el gender landing tiene clase `gender-card--proximamente`. Al hacer click muestra un toast en vez de avanzar al flujo. Para activarla cuando Rocío esté operativa: quitar esa clase del botón en index.html.
 
 ## Para conectar el backend
 1. Crear Google Sheet → copiar ID en Code.gs (SPREADSHEET_ID)
@@ -149,6 +151,30 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - `desbloquearDia` identifica la fila por `fecha + barbero + horas` (permite múltiples bloqueos parciales en el mismo día)
 - `getDiasBloqueados` y `reservar` en Code.gs leen la columna `horas` por posición (índice 3) si no tiene encabezado, y aplican `formatSheetTime` si Sheets la auto-convirtió a Date
 - **Columna `horas` en hoja DiasBloquados**: agregar header "horas" en celda D1 (el código funciona sin él, pero es buena práctica)
+
+## Notificaciones WhatsApp a barberos (pendiente de implementar)
+- Servicio: **CallMeBot** (gratuito) — verificar número oficial en callmebot.com antes de implementar
+- Cada barbero activa su cuenta una vez: agrega el contacto de CallMeBot y envía `I allow callmebot to send me messages`; recibe su `apikey` por WhatsApp
+- Las `apikey` de cada barbero se guardan en la hoja **Config** de Google Sheets (no hardcodeadas en código)
+- La notificación se envía desde `reservar` en Code.gs al guardar la cita exitosamente
+- **Mensaje a enviar**: solo fecha y hora — sin nombre ni teléfono del cliente (privacidad)
+  ```
+  Nueva cita: Miércoles 23 Abril — 10:30 AM
+  ```
+- La llamada a CallMeBot va en `try/catch`: si falla (barbero no activó, servicio caído), se ignora silenciosamente — la cita igual se guarda
+- Función base:
+  ```javascript
+  function notificarBarbero(telefono, apikey, mensaje) {
+    try {
+      var url = "https://api.callmebot.com/whatsapp.php"
+        + "?phone=" + telefono
+        + "&text=" + encodeURIComponent(mensaje)
+        + "&apikey=" + apikey;
+      UrlFetchApp.fetch(url);
+    } catch(e) {}
+  }
+  ```
+- **Pendiente**: confirmar número oficial de CallMeBot + recopilar apikeys de Sebastián, César y Rocío
 
 ## QR Code
 - Archivo: qr_rc_barber.png (574×574px)
