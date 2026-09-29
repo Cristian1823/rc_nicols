@@ -1,5 +1,5 @@
 const API = {
-  _jsonp(params) {
+  _jsonp(params, timeoutMs = 12000) {
     return new Promise((resolve, reject) => {
       const callbackName = 'cb_' + Date.now() + '_' + Math.round(Math.random() * 100000);
 
@@ -14,9 +14,18 @@ const API = {
       const script = document.createElement('script');
 
       const cleanup = () => {
+        clearTimeout(timer);
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
       };
+
+      // Sin esto, una conexión lenta o inestable deja la promesa colgada para
+      // siempre (el script carga pero el servidor nunca llama al callback):
+      // la pantalla se queda "cargando" en vez de avisar del problema.
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('Tiempo de espera agotado'));
+      }, timeoutMs);
 
       window[callbackName] = (data) => {
         cleanup();

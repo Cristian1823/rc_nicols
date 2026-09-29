@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hora: null,
     calendarDate: new Date(),
     diasBloqueados: [],
+    diasBloqueadosError: false,
     servicios: [],
     barberos: []
   };
@@ -300,8 +301,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const data = await API.getDiasBloqueados();
       state.diasBloqueados = data.diasBloqueados || [];
+      state.diasBloqueadosError = false;
     } catch {
-      state.diasBloqueados = [];
+      // No se pudo confirmar qué días/horas están bloqueados (ej. mala conexión).
+      // Nunca asumir que no hay bloqueos: eso dejaría reservar horas ya bloqueadas.
+      state.diasBloqueadosError = true;
     }
     renderCalendar();
   }
@@ -332,6 +336,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const calDays  = document.getElementById('calDays');
 
   function renderCalendar() {
+    if (state.diasBloqueadosError) {
+      calDays.innerHTML =
+        '<p class="slots-empty">Sin conexión a internet. No podemos confirmar qué días/horas están disponibles.</p>' +
+        '<button type="button" class="btn btn--secondary" id="retryDiasBloqueados">Reintentar</button>';
+      const retryBtn = document.getElementById('retryDiasBloqueados');
+      if (retryBtn) retryBtn.addEventListener('click', loadDiasBloqueados);
+      return;
+    }
+
     const year  = state.calendarDate.getFullYear();
     const month = state.calendarDate.getMonth();
     const today = new Date();
