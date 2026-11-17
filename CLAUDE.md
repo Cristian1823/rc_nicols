@@ -129,6 +129,7 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 2. Ejecutar setup() en Apps Script para crear hojas (Citas, DiasBloquados, Config, Servicios, Barberos)
 3. Agregar columna `sinHora` en hoja Servicios y las 4 filas de servicios sin hora
 4. Agregar columna `horas` en hoja DiasBloquados (después de `motivo`)
+5. Agregar encabezado `creada` en Citas (columna J, tras `estado`) y en DiasBloquados (columna E, tras `horas`)
 5. Desplegar como Web App (acceso: cualquier persona)
 6. Pegar URL en js/config.js (API_URL)
 
@@ -147,7 +148,7 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 ### Bloqueo de días y horas
 - El admin puede bloquear **todo el día** o **horas específicas** (toggle radio en el formulario)
 - Horas específicas: grid de checkboxes con los mismos slots fijos (09:00 → 21:00, cada 30 min); se almacenan como CSV en columna `horas`
-- Hoja `DiasBloquados` columnas: `fecha | barbero | motivo | horas` (horas vacío = todo el día)
+- Hoja `DiasBloquados` columnas: `fecha | barbero | motivo | horas | creada` (horas vacío = todo el día)
 - `isDiaBlocked` en app.js: solo bloquea el día en el calendario cuando `horas` está vacío
 - `isSlotBlocked` en app.js: deshabilita slots que solapan con las horas bloqueadas (ventana de 30 min por hora bloqueada); usa `String(d.horas)` defensivo
 - `reservar` en Code.gs valida contra bloqueos de día completo y parciales antes de guardar (ventana 30 min)
@@ -185,3 +186,15 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - Generado con Python (qrcode + Pillow): fondo #1a1a1a, módulos dorados (200,169,110)
 - Logo Caballeros centrado al 35% del tamaño del QR; ERROR_CORRECT_H para tolerancia con logo overlay
 - Para regenerar: ejecutar script Python con qrcode y Pillow instalados
+
+## Auditoría de registros (columna `creada`)
+- `reservar` y `bloquearDia` (Code.gs) guardan en `creada` la fecha/hora de registro en hora Colombia (`America/Bogota`, formato `yyyy-MM-dd HH:mm:ss`) vía `timestampRegistro()`
+- Hojas: Citas (columna J) y DiasBloquados (columna E). Registros anteriores al 17-nov-2026 quedan sin valor
+- Motivo: caso real del 17-nov-2026: César bloqueó el día y aparecía una cita de ese día (19:30). Sin timestamp no se podía saber si la cita fue anterior al bloqueo. Bloquear un día NO cancela citas ya existentes
+- **Pendiente**: en admin, al bloquear un día con citas confirmadas, mostrar aviso con la lista y ofrecer cancelarlas + WhatsApp al cliente
+
+## Cambios de noviembre 2026 (pedido del cliente)
+- Slots caballeros y grid admin cada 30 min; ventana de bloqueo parcial 30 min; conflictos por duración real del servicio (30 o 60 min)
+- Servicios caballeros: Corte Caballero $20k/30, Corte Niños $18k/30, Corte + Barba $25k/60, Corte + Mascarilla /60 (solo en Sheets). Eliminados Barba, Lavado, Cejas
+- Los servicios reales vienen de la hoja Servicios de Sheets; `CONFIG.SERVICIOS` es solo respaldo. Cambios de precio/duración se hacen en Sheets
+- Citas y bloqueos existentes con horas de 45 min se respetan (no se migran)
