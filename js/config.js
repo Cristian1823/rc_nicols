@@ -8,12 +8,9 @@ const CONFIG = {
 
   SERVICIOS: {
     caballeros: [
-      { id: 'corte_caballero', nombre: 'Corte Caballero',  precio: '$18k', duracion: 45 },
-      { id: 'corte_ninos',     nombre: 'Corte Niños',      precio: '$16k', duracion: 45 },
-      { id: 'barba',           nombre: 'Barba',             precio: '$8k',  duracion: 20 },
-      { id: 'corte_barba',     nombre: 'Corte + Barba',     precio: '$25k', duracion: 60 },
-      { id: 'cejas_c',         nombre: 'Cejas',             precio: '$3k',  duracion: 10 },
-      { id: 'lavado',          nombre: 'Lavado',            precio: '$2k',  duracion: 10 }
+      { id: 'corte_caballero', nombre: 'Corte Caballero',  precio: '$20k', duracion: 30 },
+      { id: 'corte_ninos',     nombre: 'Corte Niños',      precio: '$18k', duracion: 30 },
+      { id: 'corte_barba',     nombre: 'Corte + Barba',     precio: '$25k', duracion: 60 }
     ],
     damas: [
       { id: 'manicure',          nombre: 'Manicure Tradicional',  precio: '$15k',      duracion: 30  },

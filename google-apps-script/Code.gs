@@ -256,7 +256,7 @@ function reservar(data) {
       var blockedList = dHoras.split(',');
       for (var k = 0; k < blockedList.length; k++) {
         var btMin = timeToMin(blockedList[k].trim());
-        if (nuevoInicio < btMin + 45 && nuevoFin > btMin) {
+        if (nuevoInicio < btMin + 30 && nuevoFin > btMin) {
           return { error: 'Este horario está bloqueado' };
         }
       }
@@ -287,7 +287,8 @@ function reservar(data) {
     data.servicio,
     data.cliente,
     data.telefono,
-    'confirmada'
+    'confirmada',
+    timestampRegistro()
   ]);
 
   return { success: true, id: id };
@@ -321,10 +322,16 @@ function bloquearDia(data) {
     data.fecha,
     data.barbero,
     data.motivo || '',
-    data.horas || ''
+    data.horas || '',
+    timestampRegistro()
   ]);
 
   return { success: true };
+}
+
+// Fecha y hora (Colombia) en que se generó el registro, para auditoría
+function timestampRegistro() {
+  return Utilities.formatDate(new Date(), 'America/Bogota', 'yyyy-MM-dd HH:mm:ss');
 }
 
 // ========== DESBLOQUEAR DÍA ==========
@@ -472,13 +479,13 @@ function setup() {
   // Crear hoja Citas si no existe
   if (!ss.getSheetByName('Citas')) {
     const citasSheet = ss.insertSheet('Citas');
-    citasSheet.appendRow(['id', 'fecha', 'hora', 'horaFin', 'barbero', 'servicio', 'cliente', 'telefono', 'estado']);
+    citasSheet.appendRow(['id', 'fecha', 'hora', 'horaFin', 'barbero', 'servicio', 'cliente', 'telefono', 'estado', 'creada']);
   }
 
   // Crear hoja DiasBloquados si no existe
   if (!ss.getSheetByName('DiasBloquados')) {
     const diasSheet = ss.insertSheet('DiasBloquados');
-    diasSheet.appendRow(['fecha', 'barbero', 'motivo']);
+    diasSheet.appendRow(['fecha', 'barbero', 'motivo', 'horas', 'creada']);
   }
 
   // Crear hoja Config si no existe
@@ -493,12 +500,9 @@ function setup() {
     const svcSheet = ss.insertSheet('Servicios');
     svcSheet.appendRow(['genero', 'id', 'nombre', 'precio', 'duracion']);
     // Caballeros
-    svcSheet.appendRow(['caballeros', 'corte_caballero', 'Corte Caballero',  '$18k', 45]);
-    svcSheet.appendRow(['caballeros', 'corte_ninos',     'Corte Niños',      '$16k', 45]);
-    svcSheet.appendRow(['caballeros', 'barba',           'Barba',             '$8k',  20]);
+    svcSheet.appendRow(['caballeros', 'corte_caballero', 'Corte Caballero',  '$20k', 30]);
+    svcSheet.appendRow(['caballeros', 'corte_ninos',     'Corte Niños',      '$18k', 30]);
     svcSheet.appendRow(['caballeros', 'corte_barba',     'Corte + Barba',     '$25k', 60]);
-    svcSheet.appendRow(['caballeros', 'cejas_c',         'Cejas',             '$3k',  10]);
-    svcSheet.appendRow(['caballeros', 'lavado',          'Lavado',            '$2k',  10]);
     // Damas
     svcSheet.appendRow(['damas', 'manicure',          'Manicure Tradicional',  '$15k',       30]);
     svcSheet.appendRow(['damas', 'pedicure',          'Pedicure Tradicional',  '$20k',       40]);

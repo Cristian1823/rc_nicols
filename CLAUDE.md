@@ -31,7 +31,8 @@ qr_rc_barber.png        → QR code para https://rc-nicols.pages.dev (fondo oscu
 ## Configuración
 - Especialistas: Sebastián (caballeros), César (caballeros), Rocío (damas)
 - Horario: todos los días (incluyendo domingo), 9:00 - 21:00; días cerrados solo vía bloqueo admin
-- Slots caballeros: fijos cada 45 min → 09:00, 09:45, 10:30, 11:15, 12:00, 12:45, 13:30, 14:15, 15:00, 15:45, 16:30, 17:15, 18:00, 18:45, 19:30, 20:15, 21:00
+- Slots caballeros: fijos cada 30 min → 09:00, 09:30, 10:00 … 20:30, 21:00 (25 slots). Un servicio de 60 min ocupa 2 slots consecutivos (conflicto calculado por duración real)
+- Servicios caballeros: Corte Caballero $20k (30 min), Corte Niños $18k (30 min), Corte + Barba $25k (60 min), Corte + Mascarilla (60 min, solo en Sheets). Eliminados: Barba, Lavado, Cejas
 - Slots damas: dinámicos según duración del servicio (slotBase 10 min en CONFIG.HORARIO)
 - Servicios: cargados desde Google Sheets (Servicios sheet); fallback en CONFIG.SERVICIOS
 - PIN admin por defecto: 1234 (hoja Config en Google Sheets)
@@ -119,6 +120,8 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 - Horarios en formato 12h (AM/PM) para el cliente: función `to12h(timeStr)` en app.js convierte el display de slots, resumen y confirmación. La lógica interna y el backend siguen usando formato 24h (`HH:MM`).
 - Error de conexión en slots: si `API.getSlots` falla (timeout, sin internet), se muestra "Sin conexión a internet..." y se aborta la carga. Antes el `catch` silencioso dejaba `ocupados = []` y todos los slots aparecían disponibles.
 - Carga de días bloqueados: `loadDiasBloqueados()` se hace con `await` antes de `goToStep(3)`. Sin await había race condition en móvil: el calendario se mostraba con `diasBloqueados = []` mientras la API aún respondía, permitiendo seleccionar días bloqueados.
+- Timeout en JSONP: `API._jsonp` (js/api.js) tiene timeout de 12s. Antes, si el servidor no respondía (mala conexión), la promesa quedaba colgada para siempre y la pantalla se veía "trabada" cargando en vez de avisar del problema.
+- Error de conexión al cargar días bloqueados: si `API.getDiasBloqueados` falla, `loadDiasBloqueados()` (js/app.js) ya NO asume `diasBloqueados = []` (eso dejaba reservar horas que el barbero sí había bloqueado — bug reportado por un cliente). Ahora setea `state.diasBloqueadosError = true` y `renderCalendar()` muestra "Sin conexión a internet..." + botón Reintentar en vez del calendario, bloqueando el avance hasta que la carga tenga éxito.
 - Sección Damas "Próximamente": la card de Damas en el gender landing tiene clase `gender-card--proximamente`. Al hacer click muestra un toast en vez de avanzar al flujo. Para activarla cuando Rocío esté operativa: quitar esa clase del botón en index.html.
 
 ## Para conectar el backend
@@ -143,11 +146,11 @@ Keratina, Células Madre, Alisado, Cepillado — servicios damas con precio "A c
 
 ### Bloqueo de días y horas
 - El admin puede bloquear **todo el día** o **horas específicas** (toggle radio en el formulario)
-- Horas específicas: grid de checkboxes con los mismos slots fijos (09:00 → 21:00, cada 45 min); se almacenan como CSV en columna `horas`
+- Horas específicas: grid de checkboxes con los mismos slots fijos (09:00 → 21:00, cada 30 min); se almacenan como CSV en columna `horas`
 - Hoja `DiasBloquados` columnas: `fecha | barbero | motivo | horas` (horas vacío = todo el día)
 - `isDiaBlocked` en app.js: solo bloquea el día en el calendario cuando `horas` está vacío
-- `isSlotBlocked` en app.js: deshabilita slots que solapan con las horas bloqueadas (ventana de 45 min por hora bloqueada); usa `String(d.horas)` defensivo
-- `reservar` en Code.gs valida contra bloqueos de día completo y parciales antes de guardar (ventana 45 min)
+- `isSlotBlocked` en app.js: deshabilita slots que solapan con las horas bloqueadas (ventana de 30 min por hora bloqueada); usa `String(d.horas)` defensivo
+- `reservar` en Code.gs valida contra bloqueos de día completo y parciales antes de guardar (ventana 30 min)
 - `desbloquearDia` identifica la fila por `fecha + barbero + horas` (permite múltiples bloqueos parciales en el mismo día)
 - `getDiasBloqueados` y `reservar` en Code.gs leen la columna `horas` por posición (índice 3) si no tiene encabezado, y aplican `formatSheetTime` si Sheets la auto-convirtió a Date
 - **Columna `horas` en hoja DiasBloquados**: agregar header "horas" en celda D1 (el código funciona sin él, pero es buena práctica)

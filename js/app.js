@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!d.horas) return false; // día completo ya manejado en isDiaBlocked
       return String(d.horas).split(',').some(h => {
         const btMin = slotToMin(h.trim());
-        return slotMin < btMin + 45 && slotMin + duracion > btMin;
+        return slotMin < btMin + 30 && slotMin + duracion > btMin;
       });
     });
   }
@@ -481,11 +481,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Slots fijos de atención para caballeros (cada 45 min, 9:00 → 21:00)
+  // Slots fijos de atención para caballeros (cada 30 min, 9:00 → 21:00)
   const SLOTS_FIJOS = [
-    '09:00','09:45','10:30','11:15','12:00','12:45',
-    '13:30','14:15','15:00','15:45','16:30','17:15',
-    '18:00','18:45','19:30','20:15','21:00'
+    '09:00','09:30','10:00','10:30','11:00','11:30',
+    '12:00','12:30','13:00','13:30','14:00','14:30',
+    '15:00','15:30','16:00','16:30','17:00','17:30',
+    '18:00','18:30','19:00','19:30','20:00','20:30',
+    '21:00'
   ];
 
   // Caballeros: slots fijos. Damas: cálculo dinámico según duración del servicio.
